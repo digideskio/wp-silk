@@ -128,7 +128,8 @@ class Products {
 		echo esc_attr( Products::get_uri( $post_id ) );
 	}
 
-	public static function get_price( $post_id = false ) {
+
+	public static function get_price( $post_id = false, $beforediscount = false) {
 		global $post;
 
 		if ( ! $post_id )
@@ -142,11 +143,13 @@ class Products {
 		if ( ! isset( $data->markets->{Store::$market}->pricesByPricelist->{Store::$pricelist} ) )
 			return __( 'ERROR: Pricelist not found', 'owc' );
 
-		return $data->markets->{Store::$market}->pricesByPricelist->{Store::$pricelist}->price;
+		$func = (!$beforediscount) ? "price" : "priceBeforeDiscount"; 
+
+		return $data->markets->{Store::$market}->pricesByPricelist->{Store::$pricelist}->$func;
 	}
 
-	public static function price( $post_id = false ) {
-		echo esc_html( Products::get_price( $post_id ) );
+	public static function price( $post_id = false, $beforediscount = false) {
+		echo esc_html( Products::get_price( $post_id, $beforediscount) );
 	}
 
 	public static function has_variants( $post_id = false ) {

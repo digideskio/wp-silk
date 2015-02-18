@@ -39,6 +39,6 @@ class Debug {
 			echo $instructions->formHtml;
 		}*/
 
-		#Sync::run();
+		Sync::run();
 	}
 }
