@@ -14,7 +14,7 @@
 
 			<?php the_content(); ?>
 
-			<?php OWC\Silk\Products::price(); ?>
+			<?php OWC\Silk\Products::price('before_discount=1'); ?>
 
 			<form action="" method="post" data-product-form="<?php OWC\Silk\Products::uri(); ?>" rel="shop-cart-form">
 				<?php if ( OWC\Silk\Products::has_variants() ) : ?>
