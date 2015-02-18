@@ -122,10 +122,16 @@ class Cart {
 	// Template functions
 
 	public static function get_checkout_url() {
+		if ( ! Admin::$settings['checkout_page'] )
+			return '';
+		
 		return get_permalink( Admin::$settings['checkout_page'] );
 	}
 
 	public static function get_quantity() {
+		if ( ! isset ( Cart::$selection->totals ) )
+			return 0;
+
 		return Cart::$selection->totals->totalQuantity;
 	}
 
@@ -134,6 +140,9 @@ class Cart {
 	}
 
 	public static function get_total() {
+		if ( ! isset ( Cart::$selection->totals ) )
+			return 0;
+
 		return Cart::$selection->totals->grandTotalPrice;
 	}
 
@@ -155,8 +164,9 @@ class Cart {
 
 		$attribute_string = '';
 		if ( $attributes ) {
-			$attribute_string = implode( ' ', array_)
+			//$attribute_string = implode( ' ', array_)
 		}
+		echo 'FIELD!';
 	}
 
 }

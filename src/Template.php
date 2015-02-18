@@ -22,9 +22,9 @@ class Template {
 	public function template_redirect() {
 		if ( get_post_type() == 'product' ) {
 			$this->file = Template::get_file( 'single-product' );
-		} elseif ( is_page( Admin::$settings['checkout_page'] ) ) {
+		} elseif ( Admin::$settings['checkout_page'] && is_page( Admin::$settings['checkout_page'] ) ) {
 			$this->file = Template::get_file( 'checkout' );
-		} elseif ( is_page( Admin::$settings['receipt_page'] ) ) {
+		} elseif ( Admin::$settings['receipt_page'] && is_page( Admin::$settings['receipt_page'] ) ) {
 			$this->file = Template::get_file( 'receipt' );
 		}
 	}

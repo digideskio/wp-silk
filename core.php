@@ -42,7 +42,7 @@ $api = new Api( array(
 	'secret'	=> Admin::$settings['secret']
 ) );
 $store = new Store( array(
-	'country'	=> 'us',
+	'country'	=> 'se',
 	'market'	=> Admin::$settings['default_market'],
 	'pricelist'	=> Admin::$settings['default_pricelist'],
 ) );

@@ -12,7 +12,7 @@ class Sync {
 		$this->run();
 	}
 
-	public function run() {
+	public static function run() {
 		global $wpdb;
 
 		#print_r((array)Api::get('countries'));
@@ -55,7 +55,10 @@ class Sync {
 		}
 	}
 
-	public function insert_category( $category, $parent_id = false ) {
+	public static function insert_category( $category, $parent_id = false ) {
+		if ( ! isset( $category->name ) )
+			return;
+		
 		$term = term_exists( $category->name, 'product_category' );
 		$term_id = false;
 

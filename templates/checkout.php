@@ -58,7 +58,7 @@
 			'group'			=> 'address', 
 			'type'			=> 'select', 
 			'options'		=> array( 'sdsadf' ),
-			'attributes'	=> array( 'rel' => 'shop-checkout-country' 
+			'attributes'	=> array( 'rel' => 'shop-checkout-country' )
 		) ); ?>
 
 		<h2><?php _e( 'Shipping Information', 'owc' ); ?></h2>

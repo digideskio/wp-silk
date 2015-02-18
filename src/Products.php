@@ -10,7 +10,7 @@ class Products {
 		add_action( 'admin_init', array( $this, 'add_post_meta' ) );
 	}
 
-	public function update_product( $product_id, $silk_data ) {
+	public static function update_product( $product_id, $silk_data ) {
 		$post_data = array(
 			'post_name'		=> $silk_data->uri,
 			'post_title'	=> $silk_data->name,
