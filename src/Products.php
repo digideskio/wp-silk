@@ -128,6 +128,30 @@ class Products {
 		echo esc_attr( Products::get_uri( $post_id ) );
 	}
 
+	public static function get_images( $args = '', $post_id = false ) {
+		global $post;
+		
+		$default = array(
+			'size' => ''
+		);
+		$args = wp_parse_args( $args, $default );
+
+		extract( $args, EXTR_SKIP );
+
+		if ( ! $post_id )
+			$post_id = $post->ID;
+
+		$data = Products::get_meta( $post_id, 'json' );
+		$urls = array();
+		$size = (!empty($size)) ? $size : "full";  
+
+		foreach ($data->media as $key => $value) :
+			array_push($urls, $value->sources->$size->url);
+		endforeach; 
+
+		return $urls; 
+	}
+
 	public static function has_discount( $post_id = false ) {
 		global $post;
 
@@ -145,7 +169,7 @@ class Products {
 		$default = array(
 			'before_discount' => false
 		);
-		$args = wp_parse_args( $args, $defaults );
+		$args = wp_parse_args( $args, $default );
 
 		extract( $args, EXTR_SKIP );
 
