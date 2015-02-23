@@ -132,7 +132,8 @@ class Products {
 		global $post;
 		
 		$default = array(
-			'size' => ''
+			'size' => '', 
+			'single' => false  
 		);
 		$args = wp_parse_args( $args, $default );
 
@@ -145,9 +146,14 @@ class Products {
 		$urls = array();
 		$size = (!empty($size)) ? $size : "full";  
 
-		foreach ($data->media as $key => $value) :
-			array_push($urls, $value->sources->$size->url);
-		endforeach; 
+		if (!$single) :
+			foreach ($data->media as $key => $value) :
+				array_push($urls, $value->sources->$size->url);
+			endforeach; 
+		else : 
+			 array_push($urls, $data->media[0]->sources->$size->url); 	
+			 $urls = implode(",", $urls); 	
+		endif; 	
 
 		return $urls; 
 	}
@@ -163,7 +169,7 @@ class Products {
 		return $data->markets->{Store::$market}->pricesByPricelist->{Store::$pricelist}->priceBeforeDiscountAsNumber > 0;
 	}
 
-	public static function get_price( $args = '', $post_id = false ) {
+	public static function get_price( $post_id = false, $args = '' ) {
 		global $post;
 		
 		$default = array(
@@ -189,15 +195,44 @@ class Products {
 		return $data->markets->{Store::$market}->pricesByPricelist->{Store::$pricelist}->$property;
 	}
 
-	public static function price( $args = '', $post_id = false ) {
+	public static function price( $post_id = false, $args = '' ) {
 		echo esc_html( Products::get_price( $args, $post_id ) );
 	}
 
-	public static function has_variants( $post_id = false ) {
-		return count( Products::get_variants( $post_id ) ) > 1;
+	public static function get_product_meta ( $post_id = false ) {
+		global $post;
+
+		if ( ! $post_id )
+			$post_id = $post->ID;
+
+		$data = Products::get_meta( $post_id, 'json' );
+
+		$obj = new \stdClass();
+		$obj->description     = $data->description; 
+		$obj->excerpt 	      = $data->excerpt; 
+		$obj->metaTitle       = $data->metaTitle; 
+		$obj->metaDescription = $data->metaDescription; 
+		$obj->metaKeywords    = $data->metaKeywords; 
+
+		return $obj; 
 	}
 
-	public static function get_variants( $post_id = false ) {
+	public static function get_variant ( $post_id = false ) {
+		global $post;
+
+		if ( ! $post_id )
+			$post_id = $post->ID;
+
+		$data = Products::get_meta( $post_id, 'json' );
+
+		return $data->silkVariantName; 
+	}
+
+	public static function has_sizes( $post_id = false ) {
+		return count( Products::get_sizes( $post_id ) ) > 1;
+	}
+
+	public static function get_sizes( $post_id = false ) {
 		global $post;
 
 		if ( ! $post_id )

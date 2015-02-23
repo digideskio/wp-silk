@@ -20,7 +20,7 @@ class Template {
 	}
 
 	public function template_redirect() {
-		if ( get_post_type() == 'product' ) {
+		if ( get_post_type() == 'product' && is_single() ) {
 			$this->file = Template::get_file( 'single-product' );
 		} elseif ( Admin::$settings['checkout_page'] && is_page( Admin::$settings['checkout_page'] ) ) {
 			$this->file = Template::get_file( 'checkout' );
