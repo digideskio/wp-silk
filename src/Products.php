@@ -117,7 +117,12 @@ class Products {
 
 		$data = Products::get_meta( $post_id, 'json' );
 
-		return $data->{$key};
+		if(isset($data->{$key})) {
+			return $data->{$key};
+		} else {
+			return $data; 
+		}
+			
 	}
 	
 	public static function get_uri( $post_id = false ) {
@@ -126,6 +131,23 @@ class Products {
 	
 	public static function uri( $post_id = false ) {
 		echo esc_attr( Products::get_uri( $post_id ) );
+	}
+
+
+	public static function has_images( $post_id = false ) {
+		global $post;
+
+		if ( ! $post_id )
+			$post_id = $post->ID;
+
+		$data = Products::get_meta( $post_id, 'json' );
+
+		if (!empty($data->media)) {
+			return true; 
+		} else {
+			return false; 
+		}
+
 	}
 
 	public static function get_images( $args = '', $post_id = false ) {
@@ -155,7 +177,7 @@ class Products {
 			 $urls = implode(",", $urls); 	
 		endif; 	
 
-		return $urls; 
+		return (!empty($urls)) ? $urls : ""; 
 	}
 
 	public static function has_discount( $post_id = false ) {
@@ -166,7 +188,7 @@ class Products {
 
 		$data = Products::get_meta( $post_id, 'json' );
 
-		return $data->markets->{Store::$market}->pricesByPricelist->{Store::$pricelist}->priceBeforeDiscountAsNumber > 0;
+		return $data->markets->{Store::$market}->pricesByPricelist->{Store::$pricelist}->priceReduction > 0;
 	}
 
 	public static function get_price( $post_id = false, $args = '' ) {
@@ -192,7 +214,9 @@ class Products {
 
 		$property = ( !$before_discount ) ? 'price' : 'priceBeforeDiscount'; 
 
-		return $data->markets->{Store::$market}->pricesByPricelist->{Store::$pricelist}->$property;
+		$price = $data->markets->{Store::$market}->pricesByPricelist->{Store::$pricelist}->$property;
+		
+		return apply_filters( 'owc_silk_get_price', $price );
 	}
 
 	public static function price( $post_id = false, $args = '' ) {
@@ -207,9 +231,7 @@ class Products {
 
 		$data = Products::get_meta( $post_id, 'json' );
 
-		$obj = new \stdClass();
-		$obj->description     = $data->description; 
-		$obj->excerpt 	      = $data->excerpt; 
+		$obj = new \stdClass(); 
 		$obj->metaTitle       = $data->metaTitle; 
 		$obj->metaDescription = $data->metaDescription; 
 		$obj->metaKeywords    = $data->metaKeywords; 
