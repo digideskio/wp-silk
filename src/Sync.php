@@ -35,6 +35,7 @@ class Sync {
 
 		// Update products
 		$current_products_arr = $wpdb->get_results( "SELECT ID, post_name FROM {$wpdb->posts} WHERE post_type = 'product'" );
+
 		$current_products = array();
 
 		foreach ( $current_products_arr as $row ) {
