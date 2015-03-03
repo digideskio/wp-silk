@@ -65,6 +65,11 @@ $options = new Options( 'owc_silk', 'Silk', array(
 				'type'  => 'text',
 				'value' => 'dummy'
 			),
+			'default_shipping' => array(
+				'title' => 'Default Shipping Method',
+				'type'  => 'text',
+				'value' => 'dummy'
+			),
 			'default_market' => array(
 				'title' => 'Default Market',
 				'type'  => 'text',
