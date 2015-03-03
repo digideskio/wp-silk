@@ -10,7 +10,7 @@
 	],
 	"require": {
 		"owc/wp-options": "1.*",
-		"owc/silk-api": "1.0.1",
+		"owc/silk-api": "1.*"
 	},
 	"autoload": {
 		"classmap": ["src/"]
