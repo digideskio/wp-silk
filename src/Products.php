@@ -142,7 +142,7 @@ class Products {
 	public static function get_price( $args = '', $post_id = false ) {
 		global $post;
 		
-		$default = array(
+		$defaults = array(
 			'before_discount' => false
 		);
 		$args = wp_parse_args( $args, $defaults );

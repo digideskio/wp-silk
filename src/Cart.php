@@ -14,6 +14,9 @@ class Cart {
 	public static $selection_id;
 	public static $selection;
 	public static $payment_data;
+	public static $doing_redirect = false;
+	public static $instructions;
+	public static $order;
 
 	public function __construct( $selection_id = false ) {
 		// Get or create a selection
@@ -44,8 +47,7 @@ class Cart {
 		if ( ! Cart::$payment_data ) {
 			Cart::$payment_data = array(
 				'paymentMethod'			=> Admin::$settings['default_payment'],
-				'paymentReturnPage'		=> Admin::$settings['return_page'],
-				'paymentFailedPage'		=> Admin::$settings['failed_page'],
+				'shippingMethod'		=> Admin::$settings['default_shipping'],
 				'termsAndConditions'	=> false,
 				'ipAddress'				=> $_SERVER['REMOTE_ADDR'],
 				'address' => array(
@@ -64,6 +66,9 @@ class Cart {
 
 			Cart::set_session( 'payment_data', Cart::$payment_data );
 		}
+
+		add_action( 'wp', array( $this, 'handle_submit' ) );
+		add_action( 'wp', array( $this, 'handle_payment_redirect' ) );
 	}
 
 	public static function add( $product_id ) {
@@ -153,20 +158,107 @@ class Cart {
 	public static function field( $args = '' ) {
 		$defaults = array(
 			'label'			=> '',
+			'name'			=> '',
 			'group'			=> 'address',
 			'type'			=> 'text',
 			'options'		=> false,
 			'attributes'	=> false,
+			'required'		=> true,
+			'prefix'		=> 'owc_checkout_'
 		);
 		$args = wp_parse_args( $args, $defaults );
 
 		extract( $args, EXTR_SKIP );
 
-		$attribute_string = '';
+		if ( $required )
+			$attributes['required'] = 'required';
+
+		$attributes_html = '';
 		if ( $attributes ) {
-			//$attribute_string = implode( ' ', array_)
+			$attribute_arr = array();
+			foreach( $attributes as $key => $val ) {
+				$attribute_arr[] = $key . '="' . esc_attr( $val ) . '"';
+			}
+
+			$attributes_html = implode( ' ', $attribute_arr );
 		}
-		echo 'FIELD!';
+
+		$field_name = $group . '[' . $name . ']';
+		$id = $prefix . $group . '_' . $name;
+
+		switch ( $type ) {
+			case 'select':
+				$options_html = '';
+				foreach ( $options as $key => $val ) {
+					if ( ! isset( $val->name ) )
+						continue;
+					
+					$selected = Cart::field_value( array( 'group' => $group, 'name' => $name ) ) == $key;
+					$options_html .= '<option value="' . $key . '"' . ( $selected ? ' selected' : '' ) . '>' . esc_html( $val->name ) . '</option>';
+				}
+				printf( '<div><label for="%s">%s</label><select id="%s" type="%s" name="%s" %s>%s</select></div>', $id, $label, $id, $type, $field_name, $attributes_html, $options_html );
+				break;
+			default:
+				printf( '<div><label for="%s">%s</label><input id="%s" type="%s" name="%s" value="%s" %s></div>', $id, $label, $id, $type, $field_name, Cart::field_value( array( 'group' => $group, 'name' => $name ) ), $attributes_html );
+				break;
+		}
 	}
 
+	public static function field_value( $args = '' ) {
+		$defaults = array(
+			'name'	=> '',
+			'group'	=> ''
+		);
+		$args = wp_parse_args( $args, $defaults );
+
+		extract( $args, EXTR_SKIP );
+
+		if ( empty( $group ) )
+			return Cart::$payment_data[ $name ];
+
+		if ( ! isset( Cart::$payment_data[ $group ] ) || ! isset( Cart::$payment_data[ $group ][ $name ] ) )
+			return '';
+
+		return Cart::$payment_data[ $group ][ $name ];
+	}
+
+	// Actions
+
+	public function handle_submit() {
+		if ( ! isset( $_POST[ OWC_SHOP_PREFIX . '_submit'] ) )
+			return;
+
+		if ( ! isset( $_POST[ 'terms'] ) )
+			wp_die( __( 'You must agree to the terms and conditions', 'owc' ) );
+
+		$checkout_page = get_permalink( Admin::$settings['checkout_page'] );
+
+		Cart::$payment_data['paymentReturnPage'] = get_permalink( Admin::$settings['receipt_page'] );
+		Cart::$payment_data['paymentFailedPage'] = add_query_arg( array( 'silk_failed' => 1 ), $checkout_page );
+		Cart::$payment_data['termsAndConditions'] = 1;
+
+		$instructions = Cart::get_payment_instructions();
+
+		if ( isset( $instructions->errors ) ) {
+			wp_redirect( add_query_arg( array( 'errors' => array_keys( $instructions ) ), $checkout_page ) );
+			exit;
+		}
+
+		Cart::$doing_redirect = true;
+		Cart::$instructions = $instructions;
+	}
+
+	public function handle_payment_redirect() {
+		if ( isset( $_GET['silk_failed'] ) ) {
+			wp_redirect( add_query_arg( array( 'fatal_error' => 'payment_result_fail' ), $checkout_page ) );
+			exit;
+		}
+
+		if ( ! is_page( Admin::$settings['receipt_page'] ) )
+			return;
+
+		$response = Cart::handle_payment_result();
+		Cart::$order = $response;
+
+	}
 }
