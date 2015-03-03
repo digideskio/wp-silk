@@ -19,24 +19,39 @@ var OWC_Shop;
 		options = $.extend( {
 			currency : '',
 			elements : {
-				cart        : '[rel=shop-cart]',
-				cartLength  : '[rel=shop-cart-length]',
-				cartForm    : '[rel=shop-cart-form]',
-				cartVariant : '[rel=shop-cart-variant]',
-				cartQty     : '[rel=shop-cart-qty]',
-				cartAdd     : '[rel=shop-cart-add]',
-				item        : '[rel=shop-item]',
-				itemPrice   : '[rel=shop-item-price]',
-				itemRemove  : '[rel=shop-item-remove]',
-				itemQty     : '[rel=shop-item-qty]',
-				itemStep    : '[rel=shop-item-sub], [rel=shop-item-add]',
-				total       : '[rel=shop-total]',
-				paymentMethod  : '[rel=shop-checkout-payment-method]',
-				shippingMethod : '[rel=shop-checkout-shipping-method]',
-				billingForm : '[rel=shop-checkout-billing]',
-				shippingForm: '[rel=shop-checkout-shipping]',
-				sameShipping: '[rel=shop-checkout-same-shipping]',
-				submitForm	: '[rel=shop-checkout-submit]'
+				cart        : '[rel=cart]',
+				cartLength  : '[rel=cart-length]',
+				total       : '[rel=cart-total]',
+
+				productForm : '[rel=product-form]',
+				productSize : '[rel=product-size]',
+
+				items       : '[rel=items]',
+				item        : '[rel=item]',
+				itemRemove  : '[rel=item-remove]',
+				itemQty     : '[rel=item-qty]',
+				itemStep    : '[rel=item-sub], [rel=item-add]',
+
+				summary         : '[rel=summary]',
+				summaryItems    : '[rel=summary-items]',
+				summaryTaxes    : '[rel=summary-taxes]',
+				summaryShipping : '[rel=summary-shipping]',
+				summaryTotal    : '[rel=summary-total]',
+
+				voucherSection  : '[rel=voucher-section]',
+				voucher         : '[rel=voucher]',
+				voucherForm     : '[rel=voucher-form]',
+				voucherAdd      : '[rel=voucher-add]',
+				voucherRemove   : '[rel=voucher-remove]',
+
+				paymentMethod   : '[rel=payment-method]',
+				shippingMethod  : '[rel=shipping-method]',
+
+				sameShipping : '[rel=same-shipping]',
+				billingForm  : '[rel=billing-information]',
+				shippingForm : '[rel=shipping-information]',
+
+				submitForm	 : '[rel=checkout-submit]'
 			},
 			classes : {
 				loading : 'is-loading',
@@ -54,19 +69,22 @@ var OWC_Shop;
 		| EVENTS
 		|-----------------------------------------------------------
 		*/
+		// Product page: Add to cart
+		self.elements.$productForm.on( 'submit', function(e) {
+			e.preventDefault();
 
-		self.elements.$cartForm.on( 'change', function() {
-			self.updateCartPrice();
+			var $form = $(this),
+				id    = $form.find( options.elements.productSize ).val();
 
-			return false;
+			self.addToCart( id, $form.find('button') );
 		} );
 
+		// Checkout: Billing information
 		self.elements.$billingForm.on( 'change', 'input', function() {
-			self.updateInformation( self.elements.$billingForm );
-
-			return false;
+			self.updateSelection( self.elements.$billingForm.serialize(), true );
 		} );
 
+		// Checkout: Same shipping toggle
 		self.elements.$sameShipping.on( 'change', function(){
 			if ( $(this).is(':checked') )
 				self.elements.$shippingForm.hide();
@@ -74,82 +92,76 @@ var OWC_Shop;
 				self.elements.$shippingForm.show();
 		} );
 
-		self.elements.$shippingForm.on( 'change', 'input', function() {
+		// Checkout: Shipping information
+		self.elements.$shippingForm.on( 'change', 'input', function(e) {
+			e.preventDefault();
+
 			if ( self.elements.$sameShipping.is(':checked') )
 				self.elements.$shippingForm.find('input').val('');
 			
-			self.updateInformation( self.elements.$shippingForm );
-
-			return false;
+			self.updateSelection( self.elements.$shippingForm.serialize(), true );
 		} );
 
+		// Checkout: Payment method
 		self.elements.$paymentMethod.on( 'change', function(){
 			self.updateSelection({
 				paymentMethod : $(this).val()
 			});
 		} );
 
-		/* Add to cart */
-		
-		self.elements.$cartForm.on( 'submit', function(e) {
-			e.preventDefault();
-			console.log(e.target);
-
-			var $form = $(this),
-				id    = $form.find( options.elements.cartVariant ).val();
-
-			self.addToCart( id, $form.find('button') );
-
-			return false;
-		} );
-
-
-		self.elements.$item.on( 'click', options.elements.itemRemove, function(e) {
+		// Checkout: Product delete
+		self.elements.$items.on( 'click', options.elements.itemRemove, function(e) {
 			e.preventDefault();
 
-			var id = $( e.delegateTarget ).attr( 'data-id' );
+			var id = $( e.target ).closest(options.elements.item).data( 'id' );
 
-			self.removeFromCart( id );
-
-			return false;
-		} );
-	
-		self.elements.$item.on( 'change', options.elements.itemQty, function(e) {
-			var id    = $( e.delegateTarget ).attr( 'data-id' ),
-				price = $( e.delegateTarget ).attr( 'data-price' ),
-				qty   = $( e.target ).val();
-
-			if ( qty < 1 ) {
-				$( e.target ).val( 1 );
-				qty = 1;
-			}
-
-			self.updateQty( id, qty );
-			self.updateItemPrice( id, price, qty );
-
-			return false;
+			self.updateQty( id, 0 );
 		} );
 
-		self.elements.$item.on( 'click', options.elements.itemStep, function(e) {
+		// Checkout: Product add/remove
+		self.elements.$items.on( 'click', options.elements.itemStep, function(e) {
 			e.preventDefault();
 
-			var id    = $( e.delegateTarget ).attr( 'data-id' ),
-				inp = $( options.elements.itemQty, e.delegateTarget ),
-				qty   = inp.val(),
-				step = $(this).attr('rel') === 'shop-item-add' ? 1 : -1;
+			var item = $( e.target ).closest(options.elements.item),
+				id   = item.attr( 'data-id' ),
+				inp  = $( options.elements.itemQty, item ),
+				qty  = inp.val(),
+				step = $(this).attr('rel') === 'item-add' ? 1 : -1;
 
 			qty = parseInt(qty, 10) + step;
 
-			if (qty > 0) {
-				inp.val(qty);
-				self.updateQty( id, qty );
-				self.updateItemPrice( id, price, qty );
-			} else {
-				inp.val(0);
-				self.removeFromCart( id );
-			}
+			inp.val(qty);
+			self.updateQty( id, qty );
+		} );
 
-			return false;
+		// Checkout: Product quantity change
+		self.elements.$items.on( 'change', options.elements.itemQty, function(e) {
+			e.preventDefault();
+
+			var item = $( e.target ).closest(options.elements.item),
+				id   = item.attr( 'data-id' ),
+				inp  = $( options.elements.itemQty, item ),
+				qty  = inp.val();
+
+			self.updateQty( id, qty );
+		} );
+
+		// Checkout: Add voucher
+		self.elements.$voucherSection.on( 'submit', options.elements.voucherForm, function(e){
+			e.preventDefault();
+
+			var voucher = $(this).find(options.elements.voucher).val();
+
+			self.addVoucher( voucher );
+		} );
+
+		// Checkout: Remove voucher
+		self.elements.$voucherSection.on( 'click', options.elements.voucherRemove, function(e){
+			e.preventDefault();
+
+			var voucher = $(this).data('voucher');
+
+			self.removeVoucher( voucher );
 		} );
 
 		/*
@@ -162,7 +174,7 @@ var OWC_Shop;
 			if ( product_id < 1 )
 				return;
 			
-			self.elements.$cartForm.addClass( options.classes.loading ).removeClass( options.classes.done );
+			self.elements.$productForm.addClass( options.classes.loading ).removeClass( options.classes.done );
 
 			$.ajax( {
 				type : 'post',
@@ -177,7 +189,32 @@ var OWC_Shop;
 					self.updateTotalPrice( response.data.totals.grandTotalPrice );
 				}
 			} ).always( function() {
-				self.elements.$cartForm.removeClass( options.classes.loading ).addClass( options.classes.done );
+				self.elements.$productForm.removeClass( options.classes.loading ).addClass( options.classes.done );
+			} );
+		}
+
+		self.updateQty = function( product_id, quantity ) {
+			if ( product_id < 1 )
+				return;
+
+			$.ajax( {
+				type : 'post',
+				url  : ajaxurl,
+				data : {
+					action		: 'update_quantity',
+					product_id	: product_id,
+					quantity    : quantity
+				}
+			} ).done( function( response ) {
+				if ( response.success ) {
+					self.updateCartLength( response.data.totals.totalQuantity );
+					self.updateTotalPrice( response.data.totals.grandTotalPrice );
+
+					self.updateItems( response.data.items );
+					self.updateSummary( response.data.summary );
+				}
+			} ).always( function() {
+				//
 			} );
 		}
 
@@ -185,30 +222,19 @@ var OWC_Shop;
 			self.elements.$total.text( total_sum );
 		}
 
-		self.updateCartLength = function( length, isReplacing ) {
+		self.updateCartLength = function( length ) {
 			self.elements.$cartLength.text( length ).addClass('has-items');
 		}
 
-		self.updateInformation = function( el ) {
-			var button = self.elements.$submitForm.find('input[type=submit]'),
-				data = el.serialize();
-
-			button.attr('disabled', true).addClass( options.classes.loading ).removeClass( options.classes.done );
-
-			$.ajax( {
-				type : 'post',
-				url  : ajaxurl,
-				data : {
-					action : 'update_selection',
-					data   : data,
-					parse_data : true
-				}
-			} ).done( function( response ) {
-				button.attr('disabled', false).removeClass( options.classes.loading ).addClass( options.classes.done );
-			} );
+		self.updateItems = function( html ) {
+			self.elements.$items.html( $(html).html() );
 		}
 
-		self.updateSelection = function( data ) {
+		self.updateSummary = function( html ) {
+			self.elements.$summary.html( $(html).html() );
+		}
+
+		self.updateSelection = function( data, parseData ) {
 			var button = self.elements.$submitForm.find('input[type=submit]');
 
 			button.attr('disabled', true).addClass( options.classes.loading ).removeClass( options.classes.done );
@@ -218,10 +244,49 @@ var OWC_Shop;
 				url  : ajaxurl,
 				data : {
 					action : 'update_selection',
-					data   : data
+					data   : data,
+					parse_data : parseData
 				}
 			} ).done( function( response ) {
 				button.attr('disabled', false).removeClass( options.classes.loading ).addClass( options.classes.done );
+			} );
+		}
+
+		self.addVoucher = function( voucher ) {
+			self.elements.$voucherAdd.attr('disabled', true).addClass( options.classes.loading ).removeClass( options.classes.done );
+
+			$.ajax( {
+				type : 'post',
+				url  : ajaxurl,
+				data : {
+					action	: 'add_voucher',
+					voucher	: voucher
+				}
+			} ).done( function( response ) {
+				if ( response.success ) {
+					self.elements.$summary.html( $(response.data.summary).html() );
+					self.elements.$voucherSection.html( $(response.data.voucher).html() );
+				}
+			} ).always( function() {
+				self.elements.$voucherAdd.attr('disabled', false).removeClass( options.classes.loading ).addClass( options.classes.done );
+			} );
+		}
+
+		self.removeVoucher = function( voucher ) {
+			$.ajax( {
+				type : 'post',
+				url  : ajaxurl,
+				data : {
+					action	: 'remove_voucher',
+					voucher	: voucher
+				}
+			} ).done( function( response ) {
+				if ( response.success ) {
+					self.elements.$summary.html( $(response.data.summary).html() );
+					self.elements.$voucherSection.html( $(response.data.voucher).html() );
+				}
+			} ).always( function() {
+				//
 			} );
 		}
 	};

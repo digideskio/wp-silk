@@ -45,4 +45,18 @@ class Template {
 
 		return $file;
 	}
+
+	public static function get_html( $template ) {
+		$html = '';
+		
+		ob_start();
+		
+		include( Template::get_file( $template ) );
+		
+		$html = ob_get_contents();
+		
+		ob_end_clean();
+
+		return $html;
+	}
 }

@@ -83,6 +83,14 @@ class Cart {
 		Cart::$selection = Api::put( 'selections/' . Cart::$selection_id . '/items/' . $product_id . '/quantity/' . $quantity );
 	}
 
+	public static function add_voucher( $voucher ) {
+		Cart::$selection =  Api::post( 'selections/' . Cart::$selection_id . '/vouchers/' . $voucher );
+	}
+
+	public static function remove_voucher( $voucher ) {
+		Cart::$selection =  Api::delete( 'selections/' . Cart::$selection_id . '/vouchers/' . $voucher );
+	}
+
 	public static function set_payment_details( $data = array() ) {
 		Cart::$payment_data = array_merge( Cart::$payment_data, $data );
 
@@ -144,11 +152,19 @@ class Cart {
 		echo esc_html( Cart::get_quantity() );
 	}
 
-	public static function get_total() {
+	public static function get_totals( $key ) {
 		if ( ! isset ( Cart::$selection->totals ) )
 			return 0;
 
-		return Cart::$selection->totals->grandTotalPrice;
+		return Cart::$selection->totals->{$key};
+	}
+
+	public static function totals( $key ) {
+		echo esc_html( Cart::get_totals( $key ) );
+	}
+
+	public static function get_total() {
+		return Cart::get_totals( 'grandTotalPrice' );
 	}
 
 	public static function total() {
@@ -240,7 +256,7 @@ class Cart {
 		$instructions = Cart::get_payment_instructions();
 
 		if ( isset( $instructions->errors ) ) {
-			wp_redirect( add_query_arg( array( 'errors' => array_keys( $instructions ) ), $checkout_page ) );
+			wp_redirect( add_query_arg( array( 'errors' => array_keys( (array)$instructions->errors ) ), $checkout_page ) );
 			exit;
 		}
 
