@@ -197,7 +197,7 @@ class Products {
 		$defaults = array(
 			'before_discount' => false
 		);
-		$args = wp_parse_args( $args, $default );
+		$args = wp_parse_args( $args, $defaults );
 
 		extract( $args, EXTR_SKIP );
 
