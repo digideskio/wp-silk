@@ -1,7 +1,8 @@
 <?php get_header(); ?>
 <div id="primary" class="content-area">
 	<div id="content" class="site-content" role="main">
-		<h1><?php _e( 'Checkout', 'owc' ); ?></h1>
+		<h1><?php _e( 'Receipt', 'owc' ); ?></h1>
+		<pre><?php print_r( OWC\Silk\Cart::$order ); ?></pre>
 	</div>
 </div>
 <?php

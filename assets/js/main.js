@@ -25,14 +25,18 @@ var OWC_Shop;
 				cartVariant : '[rel=shop-cart-variant]',
 				cartQty     : '[rel=shop-cart-qty]',
 				cartAdd     : '[rel=shop-cart-add]',
-				cartPrice   : '[rel=shop-cart-price]',
 				item        : '[rel=shop-item]',
 				itemPrice   : '[rel=shop-item-price]',
 				itemRemove  : '[rel=shop-item-remove]',
 				itemQty     : '[rel=shop-item-qty]',
 				itemStep    : '[rel=shop-item-sub], [rel=shop-item-add]',
 				total       : '[rel=shop-total]',
-				checkoutLink: '[rel=shop-checkout]'
+				paymentMethod  : '[rel=shop-checkout-payment-method]',
+				shippingMethod : '[rel=shop-checkout-shipping-method]',
+				billingForm : '[rel=shop-checkout-billing]',
+				shippingForm: '[rel=shop-checkout-shipping]',
+				sameShipping: '[rel=shop-checkout-same-shipping]',
+				submitForm	: '[rel=shop-checkout-submit]'
 			},
 			classes : {
 				loading : 'is-loading',
@@ -55,6 +59,34 @@ var OWC_Shop;
 			self.updateCartPrice();
 
 			return false;
+		} );
+
+		self.elements.$billingForm.on( 'change', 'input', function() {
+			self.updateInformation( self.elements.$billingForm );
+
+			return false;
+		} );
+
+		self.elements.$sameShipping.on( 'change', function(){
+			if ( $(this).is(':checked') )
+				self.elements.$shippingForm.hide();
+			else
+				self.elements.$shippingForm.show();
+		} );
+
+		self.elements.$shippingForm.on( 'change', 'input', function() {
+			if ( self.elements.$sameShipping.is(':checked') )
+				self.elements.$shippingForm.find('input').val('');
+			
+			self.updateInformation( self.elements.$shippingForm );
+
+			return false;
+		} );
+
+		self.elements.$paymentMethod.on( 'change', function(){
+			self.updateSelection({
+				paymentMethod : $(this).val()
+			});
 		} );
 
 		/* Add to cart */
@@ -213,19 +245,40 @@ var OWC_Shop;
 			}
 		}
 
-		self.updateItemPrice = function( id, price, qty ) {
-			$( '[data-id=' + id + ']' ).find( options.elements.itemPrice ).text( self.formatPrice( price * qty ) );
+		self.updateInformation = function( el ) {
+			var button = self.elements.$submitForm.find('input[type=submit]'),
+				data = el.serialize();
+
+			button.attr('disabled', true).addClass( options.classes.loading ).removeClass( options.classes.done );
+
+			$.ajax( {
+				type : 'post',
+				url  : ajaxurl,
+				data : {
+					action : 'update_selection',
+					data   : data,
+					parse_data : true
+				}
+			} ).done( function( response ) {
+				button.attr('disabled', false).removeClass( options.classes.loading ).addClass( options.classes.done );
+			} );
 		}
 
-		self.updateTotalPrice = function( total_sum ) {
-			console.log(total_sum);
-			self.elements.$total.text( total_sum );
-		}
+		self.updateSelection = function( data ) {
+			var button = self.elements.$submitForm.find('input[type=submit]');
 
-		self.formatPrice = function( price ) {
-			var replaceStr = options.currency.indexOf('{{amount_no_decimals}}') != -1 ? '{{amount_no_decimals}}' : '{{amount}}';
+			button.attr('disabled', true).addClass( options.classes.loading ).removeClass( options.classes.done );
 
-			return options.currency.replace( replaceStr, price.toFixed( 2 ) );
+			$.ajax( {
+				type : 'post',
+				url  : ajaxurl,
+				data : {
+					action : 'update_selection',
+					data   : data
+				}
+			} ).done( function( response ) {
+				button.attr('disabled', false).removeClass( options.classes.loading ).addClass( options.classes.done );
+			} );
 		}
 
 		/*

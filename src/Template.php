@@ -23,7 +23,12 @@ class Template {
 		if ( get_post_type() == 'product' && is_single() ) {
 			$this->file = Template::get_file( 'single-product' );
 		} elseif ( Admin::$settings['checkout_page'] && is_page( Admin::$settings['checkout_page'] ) ) {
-			$this->file = Template::get_file( 'checkout' );
+			
+			if ( Cart::$doing_redirect )
+				$this->file = Template::get_file( 'checkout-redirect' );
+			else
+				$this->file = Template::get_file( 'checkout' );
+			
 		} elseif ( Admin::$settings['receipt_page'] && is_page( Admin::$settings['receipt_page'] ) ) {
 			$this->file = Template::get_file( 'receipt' );
 		}

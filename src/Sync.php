@@ -15,8 +15,9 @@ class Sync {
 	public static function run() {
 		global $wpdb;
 
-		#print_r((array)Api::get('countries'));
-		#exit;
+		// Update countries
+		$countries = (array)Api::get( 'countries' );
+		update_option( OWC_SHOP_PREFIX . '_countries', $countries );
 
 		// Update categories
 		foreach ( (array)Api::get('categories') as $category_id => $category ) {

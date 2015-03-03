@@ -75,21 +75,6 @@ $options = new Options( 'owc_silk', 'Silk', array(
 				'type'  => 'text',
 				'value' => 20
 			),
-			'return_page' => array(
-				'title' => 'Return Page',
-				'type'  => 'page',
-				'value' => 0
-			),
-			'failed_page' => array(
-				'title' => 'Failed Page',
-				'type'  => 'page',
-				'value' => 0
-			),
-			'push_page' => array(
-				'title' => 'Push Page',
-				'type'  => 'page',
-				'value' => 0
-			),
 			'checkout_page' => array(
 				'title' => 'Checkout Page',
 				'type'  => 'page',
@@ -97,6 +82,11 @@ $options = new Options( 'owc_silk', 'Silk', array(
 			),
 			'receipt_page' => array(
 				'title' => 'Receipt Page',
+				'type'  => 'page',
+				'value' => 0
+			),
+			'push_page' => array(
+				'title' => 'Push Page',
 				'type'  => 'page',
 				'value' => 0
 			)
