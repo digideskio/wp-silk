@@ -90,6 +90,7 @@ var OWC_Shop;
 		} );
 
 		/* Add to cart */
+		
 		self.elements.$cartForm.on( 'submit', function(e) {
 			e.preventDefault();
 			console.log(e.target);
@@ -133,7 +134,6 @@ var OWC_Shop;
 			e.preventDefault();
 
 			var id    = $( e.delegateTarget ).attr( 'data-id' ),
-				price = $( e.delegateTarget ).attr( 'data-price' ),
 				inp = $( options.elements.itemQty, e.delegateTarget ),
 				qty   = inp.val(),
 				step = $(this).attr('rel') === 'shop-item-add' ? 1 : -1;
@@ -151,15 +151,6 @@ var OWC_Shop;
 
 			return false;
 		} );
-
-		/*
-		// update cart when tab is refocused
-		document.addEventListener("visibilitychange", function () {
-			if (!document.hidden) {
-				console.log('welcome back, let\'s reload the cart!')
-			}
-		}, false);
-		*/
 
 		/*
 		|-----------------------------------------------------------
@@ -190,59 +181,12 @@ var OWC_Shop;
 			} );
 		}
 
-		self.removeFromCart = function( id, isReplacing ) {
-			$.ajax( {
-				type : 'post',
-				url  : ajaxurl,
-				data : {
-					action : 'owc_shop_remove_from_cart',
-					id     : id
-				}
-			} ).done( function( response ) {
-				if ( typeof response.data != 'undefined' ) {
-					self.updateCartLength( response.data[0], isReplacing );
-					self.updateTable( id );
-					self.updateTotalPrice( response.data[1] );
-				}
-			} );
-		}
-
-		self.updateQty = function( id, qty ) {
-			$.ajax( {
-				type : 'post',
-				url  : ajaxurl,
-				data : {
-					action : 'owc_shop_update_quantity',
-					id     : id,
-					qty    : qty
-				}
-			} ).done( function( response ) {
-				if ( typeof response.data != 'undefined' ) {
-					self.updateCartLength( response.data[0] );
-					self.updateTotalPrice( response.data[1] );
-				}
-			} );
-		}
-
-		self.updateCartPrice = function() {
-			/*
-			var id    = self.elements.$cartVariant.val(),
-				price = self.elements.$cartVariant.find( 'option[value=' + id + ']' ).attr('data-price'),
-				compare = self.elements.$cartVariant.find( 'option[value=' + id + ']' ).attr('data-compare'),
-				qty   = self.elements.$cartQty.val();
-
-			self.elements.$cartPrice.text( self.formatPrice( price * qty ) );
-			if ( compare ) self.elements.$cartPrice.addClass('is-sale').append('<strike>' + self.formatPrice( parseInt(compare, 10) ) + '</strike>');
-			*/
+		self.updateTotalPrice = function( total_sum ) {
+			self.elements.$total.text( total_sum );
 		}
 
 		self.updateCartLength = function( length, isReplacing ) {
 			self.elements.$cartLength.text( length ).addClass('has-items');
-
-			if ( !length && !isReplacing ) {
-				self.elements.$cartLength.removeClass('has-items');
-				window.location.reload();
-			}
 		}
 
 		self.updateInformation = function( el ) {
@@ -280,13 +224,5 @@ var OWC_Shop;
 				button.attr('disabled', false).removeClass( options.classes.loading ).addClass( options.classes.done );
 			} );
 		}
-
-		/*
-		|-----------------------------------------------------------
-		| INIT
-		|-----------------------------------------------------------
-		*/
-		//self.updateCartPrice();
 	};
-
 })(jQuery);
