@@ -9,6 +9,7 @@ class Ajax {
 		'add_to_cart',
 		'update_quantity',
 		'update_selection',
+		'update_country',
 		'add_voucher',
 		'remove_voucher'
 	);
@@ -65,6 +66,23 @@ class Ajax {
 		Cart::set_session( 'payment_data', Cart::$payment_data );
 
 		wp_send_json_success( Cart::$payment_data );
+	}
+
+	public function update_country() {
+		$country = esc_attr( $_POST['country'] );
+
+		Cart::change_country( $country );
+
+		if ( isset( Cart::$selection->errors ) )
+			wp_send_json_error( Cart::$selection->errors );
+
+		$response = array(
+			'totals' 	=> Cart::$selection->totals,
+			'summary'	=> Template::get_html( 'checkout/summary' ),
+			'items'		=> Template::get_html( 'checkout/items' )
+		);
+
+		wp_send_json_success( $response );
 	}
 
 	public function add_voucher() {

@@ -58,7 +58,7 @@
 				'name'			=> 'country',
 				'type'			=> 'select',
 				'options'		=> OWC\Silk\Store::$countries,
-				'attributes'	=> array( 'rel' => 'shop-checkout-country' )
+				'attributes'	=> array( 'rel' => 'billing-country' )
 			) ); ?>
 		</form>
 
@@ -97,7 +97,7 @@
 				'group'			=> 'shippingAddress',
 				'type'			=> 'select',
 				'options'		=> OWC\Silk\Store::$countries,
-				'attributes'	=> array( 'rel' => 'shop-checkout-country' )
+				'attributes'	=> array( 'rel' => 'shipping-country' )
 			) ); ?>
 		</form>
 

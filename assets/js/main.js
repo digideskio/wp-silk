@@ -49,6 +49,7 @@ var OWC_Shop;
 
 				sameShipping : '[rel=same-shipping]',
 				billingForm  : '[rel=billing-information]',
+				country      : '[rel=billing-country]',
 				shippingForm : '[rel=shipping-information]',
 
 				submitForm	 : '[rel=checkout-submit]'
@@ -107,6 +108,11 @@ var OWC_Shop;
 			self.updateSelection({
 				paymentMethod : $(this).val()
 			});
+		} );
+
+		// Checkout: Country change
+		self.elements.$country.on( 'change', function(){
+			self.updateCountry( $(this).val() );
 		} );
 
 		// Checkout: Product delete
@@ -246,6 +252,23 @@ var OWC_Shop;
 					action : 'update_selection',
 					data   : data,
 					parse_data : parseData
+				}
+			} ).done( function( response ) {
+				button.attr('disabled', false).removeClass( options.classes.loading ).addClass( options.classes.done );
+			} );
+		}
+
+		self.updateCountry = function( country ) {
+			var button = self.elements.$submitForm.find('input[type=submit]');
+
+			button.attr('disabled', true).addClass( options.classes.loading ).removeClass( options.classes.done );
+
+			$.ajax( {
+				type : 'post',
+				url  : ajaxurl,
+				data : {
+					action  : 'update_country',
+					country : country
 				}
 			} ).done( function( response ) {
 				button.attr('disabled', false).removeClass( options.classes.loading ).addClass( options.classes.done );

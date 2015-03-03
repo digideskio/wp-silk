@@ -71,6 +71,7 @@ class Cart {
 		add_action( 'wp', array( $this, 'handle_payment_redirect' ) );
 	}
 
+	// Items
 	public static function add( $product_id ) {
 		Cart::$selection = Api::post( 'selections/' . Cart::$selection_id . '/items/' . $product_id );
 	}
@@ -83,6 +84,7 @@ class Cart {
 		Cart::$selection = Api::put( 'selections/' . Cart::$selection_id . '/items/' . $product_id . '/quantity/' . $quantity );
 	}
 
+	// Vouchers
 	public static function add_voucher( $voucher ) {
 		Cart::$selection =  Api::post( 'selections/' . Cart::$selection_id . '/vouchers/' . $voucher );
 	}
@@ -91,6 +93,15 @@ class Cart {
 		Cart::$selection =  Api::delete( 'selections/' . Cart::$selection_id . '/vouchers/' . $voucher );
 	}
 
+	// Country
+	public static function change_country( $country, $group = 'address' ) {
+		Cart::$payment_data[ $group ]['country'] = $country;
+		Cart::set_payment_details( Cart::$payment_data );
+
+		Cart::$selection = Api::put( 'selections/' . Cart::$selection_id . '/countries/' . $country );
+	}
+
+	// Payment
 	public static function set_payment_details( $data = array() ) {
 		Cart::$payment_data = array_merge( Cart::$payment_data, $data );
 
@@ -110,6 +121,7 @@ class Cart {
 		return $response;
 	}
 
+	// Session
 	public static function set_session( $key, $data ) {
 		if ( ! session_id() )
 			session_start();
@@ -199,6 +211,7 @@ class Cart {
 			$attributes_html = implode( ' ', $attribute_arr );
 		}
 
+		$field_value = Cart::field_value( array( 'group' => $group, 'name' => $name ) );
 		$field_name = $group . '[' . $name . ']';
 		$id = $prefix . $group . '_' . $name;
 
@@ -209,13 +222,13 @@ class Cart {
 					if ( ! isset( $val->name ) )
 						continue;
 					
-					$selected = Cart::field_value( array( 'group' => $group, 'name' => $name ) ) == $key;
+					$selected = ( $field_value == $key );
 					$options_html .= '<option value="' . $key . '"' . ( $selected ? ' selected' : '' ) . '>' . esc_html( $val->name ) . '</option>';
 				}
 				printf( '<div><label for="%s">%s</label><select id="%s" type="%s" name="%s" %s>%s</select></div>', $id, $label, $id, $type, $field_name, $attributes_html, $options_html );
 				break;
 			default:
-				printf( '<div><label for="%s">%s</label><input id="%s" type="%s" name="%s" value="%s" %s></div>', $id, $label, $id, $type, $field_name, Cart::field_value( array( 'group' => $group, 'name' => $name ) ), $attributes_html );
+				printf( '<div><label for="%s">%s</label><input id="%s" type="%s" name="%s" value="%s" %s></div>', $id, $label, $id, $type, $field_name, $field_value, $attributes_html );
 				break;
 		}
 	}
