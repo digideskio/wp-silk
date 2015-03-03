@@ -1,5 +1,6 @@
 {
 	"name": "owc/wp-silk",
+	"type": "wordpress-plugin",
 	"description": "WordPress plugin for Silk API.",
 	"license": "MIT",
 	"authors": [
@@ -9,6 +10,7 @@
 		}
 	],
 	"require": {
+		"composer/installers": "~1.0",
 		"owc/wp-options": "1.*",
 		"owc/silk-api": "1.*"
 	},
