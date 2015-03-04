@@ -80,6 +80,11 @@ $options = new Options( 'owc_silk', 'Silk', array(
 				'type'  => 'text',
 				'value' => 20
 			),
+			'attribute_taxonomy' => array(
+				'title' => 'Attribute > Taxonomy mapping',
+				'type'  => 'text',
+				'value' => ''
+			),
 			'checkout_page' => array(
 				'title' => 'Checkout Page',
 				'type'  => 'page',
