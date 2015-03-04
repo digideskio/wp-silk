@@ -23,7 +23,11 @@ class Admin {
 	public function __construct() {
 		// actions
 		add_action( 'init', array( $this, 'init' ) );
+		add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ), 100 );
+		add_action( 'admin_menu', array( $this, 'admin_menu' ), 100 );
 		add_action( 'manage_posts_custom_column', array( $this, 'custom_columns' ), 10, 2 );
+
+		add_action( 'admin_init', array( $this, 'handle_admin_screen' ), 100 );
 
 		// filters
 		add_filter( 'manage_product_posts_columns', array( $this, 'change_columns' ) );
@@ -40,6 +44,64 @@ class Admin {
 	// init
 	public function init() {
 
+	}
+
+	public function admin_bar_menu( $wp_admin_bar ) {
+		$wp_admin_bar->add_menu( array(
+			'id'	=> 'wp-silk',
+			'title'	=> __( 'Sync from Silk', 'owc' ),
+			'href'	=> admin_url( 'options-general.php?page=owc-silk-tools&owc_silk_sync=1' )
+		) );
+	}
+
+	public function admin_menu( $wp_admin_bar ) {
+		add_submenu_page( 'options-general.php', __( 'Silk Tools', 'owc' ), __( 'Silk Tools', 'owc' ), 'manage_options', 'owc-silk-tools', array( $this, 'screen_tools' ) );
+	}
+
+	// Screens
+	public function handle_admin_screen() {
+		if ( isset( $_REQUEST['owc_silk_sync'] ) ) {
+			$synced = Sync::run();
+
+			wp_redirect( admin_url( 'options-general.php?page=owc-silk-tools&synced=' . $synced ) );
+			exit;
+		}
+	}
+
+	public function screen_tools() {
+		?>
+<div class="wrap">
+	<h2>
+		<?php _ex( 'Silk Tools', 'admin', 'owc' ); ?>
+	</h2>
+
+	<?php if ( isset( $_GET['synced'] ) ): ?>
+		<?php if ( $_GET['synced'] == 1 ): ?>
+			<div class="updated">
+				<p><strong><?php _e( 'Sync performed', 'owc' ); ?></strong></p>
+			</div>
+		<?php else : ?>
+			<div class="error">
+				<p><strong><?php _e( 'Something went wrong, please try again', 'owc' ); ?></strong></p>
+			</div>
+		<?php endif; ?>
+	<?php endif; ?>
+	
+	<form action="" method="post">
+		<?php wp_nonce_field( 'owc-general-settings' ); ?>
+
+		<h3><?php _ex( 'General', 'admin', 'owc' ); ?></h3>
+		<table class="form-table">
+			<tr valign="top">
+				<th><?php _ex( 'Do manual sync', 'admin', 'owc' ); ?></th>
+				<td>
+					<input type="submit" name="owc_silk_sync" value="<?php _e( 'Sync', 'owc' ); ?>" class="button button-primary">
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+		<?php
 	}
 
 	// manage_product_posts_columns

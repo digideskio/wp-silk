@@ -46,9 +46,9 @@ $store = new Store( array(
 	'market'	=> Admin::$settings['default_market'],
 	'pricelist'	=> Admin::$settings['default_pricelist'],
 ) );
-$options = new Options( 'owc_silk', 'Silk', array(
+$options = new Options( 'owc_silk', 'Silk Configuration', array(
 	'api' => array(
-		'title'  => 'Silk Integration',
+		'title'  => 'Silk Configuration',
 		'fields' => array(
 			'url' => array(
 				'title' => 'API URL',

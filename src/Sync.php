@@ -55,6 +55,8 @@ class Sync {
 				wp_trash_post( $post_id );
 			}
 		}
+
+		return true;
 	}
 
 	public static function insert_category( $category, $parent_id = false ) {
