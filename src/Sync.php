@@ -18,6 +18,14 @@ class Sync {
 		$countries = (array)Api::get( 'countries' );
 		update_option( OWC_SHOP_PREFIX . '_countries', $countries );
 
+		// Update markets
+		$markets = (array)Api::get( 'markets' );
+		update_option( OWC_SHOP_PREFIX . '_markets', $markets );
+
+		// Update pricelists
+		$pricelists = (array)Api::get( 'pricelists' );
+		update_option( OWC_SHOP_PREFIX . '_pricelists', $pricelists );
+
 		// Update categories
 		foreach ( (array)Api::get('categories') as $category_id => $category ) {
 			Sync::insert_category( $category );
