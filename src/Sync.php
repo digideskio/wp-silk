@@ -5,11 +5,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class Sync {
 	public function __construct() {
-		#add_action( 'wp', array( $this, 'wp' ) );
-	}
-
-	public function wp() {
-		$this->run();
+		if ( ! wp_next_scheduled( 'owc_silk_sync' ) ) {
+			wp_schedule_event( time(), 'hourly', 'owc_silk_sync' );
+		}
+		add_action( 'owc_silk_sync', array( $this, 'run' ) );
 	}
 
 	public static function run() {
