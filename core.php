@@ -60,15 +60,18 @@ $options = new Options( 'owc_silk', 'Silk Configuration', array(
 				'type'  => 'text',
 				'value' => ''
 			),
-			'default_payment' => array(
-				'title' => 'Default Payment Method',
-				'type'  => 'text',
-				'value' => 'dummy'
-			),
 			'default_shipping' => array(
 				'title' => 'Default Shipping Method',
 				'type'  => 'text',
 				'value' => 'dummy'
+			),
+			'default_payment' => array(
+				'title' => 'Default Payment Method',
+				'type'  => 'select',
+				'value' => 'dummy',
+				'options'		=> get_option( OWC_SHOP_PREFIX . '_payment_methods' ),
+				'option_key'	=> 'paymentMethod',
+				'option_value'	=> 'name'
 			),
 			'default_market' => array(
 				'title' => 'Default Market',

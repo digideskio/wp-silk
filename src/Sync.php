@@ -26,6 +26,10 @@ class Sync {
 		$pricelists = (array)Api::get( 'pricelists' );
 		update_option( OWC_SHOP_PREFIX . '_pricelists', $pricelists );
 
+		// Update payment methods
+		$payment_methods = (array)Api::get( 'payment-methods' );
+		update_option( OWC_SHOP_PREFIX . '_payment_methods', $payment_methods );
+
 		// Update categories
 		foreach ( (array)Api::get('categories') as $category_id => $category ) {
 			Sync::insert_category( $category );
