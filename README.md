@@ -15,6 +15,5 @@ Not ready for production
 
 ### TODO
 * Push service
-* Attribute > Taxonomy mapping and sync
 * Cron for sync
 * Manual sync
