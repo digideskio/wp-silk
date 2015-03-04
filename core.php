@@ -72,13 +72,19 @@ $options = new Options( 'owc_silk', 'Silk Configuration', array(
 			),
 			'default_market' => array(
 				'title' => 'Default Market',
-				'type'  => 'text',
-				'value' => 2
+				'type'  => 'select',
+				'value' => 2,
+				'options'		=> get_option( OWC_SHOP_PREFIX . '_markets' ),
+				'option_key'	=> 'market',
+				'option_value'	=> 'name'
 			),
 			'default_pricelist' => array(
 				'title' => 'Default Pricelist',
-				'type'  => 'text',
-				'value' => 20
+				'type'  => 'select',
+				'value' => 20,
+				'options' => get_option( OWC_SHOP_PREFIX . '_pricelists' ),
+				'option_key'	=> 'pricelist',
+				'option_value'	=> 'name'
 			),
 			'attribute_taxonomy' => array(
 				'title' => 'Attribute > Taxonomy mapping',
