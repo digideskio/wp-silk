@@ -16,4 +16,3 @@ Not ready for production
 ### TODO
 * Push service
 * Cron for sync
-* Manual sync
