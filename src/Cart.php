@@ -192,7 +192,8 @@ class Cart {
 			'options'		=> false,
 			'attributes'	=> false,
 			'required'		=> true,
-			'prefix'		=> 'owc_checkout_'
+			'prefix'		=> 'owc_checkout_', 
+			'class'         => '', 
 		);
 		$args = wp_parse_args( $args, $defaults );
 
@@ -225,10 +226,11 @@ class Cart {
 					$selected = ( $field_value == $key );
 					$options_html .= '<option value="' . $key . '"' . ( $selected ? ' selected' : '' ) . '>' . esc_html( $val->name ) . '</option>';
 				}
-				printf( '<div><label for="%s">%s</label><select id="%s" type="%s" name="%s" %s>%s</select></div>', $id, $label, $id, $type, $field_name, $attributes_html, $options_html );
+				printf( '<div class="%s"><label for="%s">%s</label><select id="%s" type="%s" name="%s" %s>%s</select></div>', $class, $id, $label, $id, $type, $field_name, $attributes_html, $options_html );
 				break;
 			default:
-				printf( '<div><label for="%s">%s</label><input id="%s" type="%s" name="%s" value="%s" %s></div>', $id, $label, $id, $type, $field_name, $field_value, $attributes_html );
+				#printf( '<div><label for="%s">%s</label><input id="%s" type="%s" name="%s" value="%s" %s></div>', $id, $label, $id, $type, $field_name, $field_value, $attributes_html );
+				printf( '<div class="%s"><label for="%s">%s</label><input id="%s" type="%s" name="%s" value="%s" %s></div>', $class, $id, $label, $id, $type, $field_name, Cart::field_value( array( 'group' => $group, 'name' => $name ) ), $attributes_html );
 				break;
 		}
 	}
