@@ -41,6 +41,15 @@ class Products {
 		}
 
 		wp_set_object_terms( $post_id, $term_ids, 'product_category' );
+
+		// UPDATE COLORS 
+		// $colors = array(); 
+
+		// foreach( $silk_data->silkVariantName as $colorname ) {
+		// 	$colors[] = $colorname;
+		// }		
+
+		// wp_set_object_terms( $post_id, $colors, 'product_color' );		
 	}
 
 	public function setup_post_type() {
@@ -61,6 +70,12 @@ class Products {
 		register_taxonomy( 'product_category', 'product', array(
 			'label'			=> _x( 'Category', 'admin', 'owc' ),
 			'rewrite'		=> array( 'slug' => 'category' ),
+			'hierarchical'	=> true
+		) );
+
+		register_taxonomy( 'product_color', 'product', array(
+			'label'			=> _x( 'Color', 'admin', 'owc' ),
+			'rewrite'		=> array( 'slug' => 'color' ),
 			'hierarchical'	=> true
 		) );
 	}
@@ -180,6 +195,73 @@ class Products {
 		return (!empty($urls)) ? $urls : ""; 
 	}
 
+	public static function get_sku ( $post_id = false ) {
+		global $post;
+
+		if ( ! $post_id )
+			$post_id = $post->ID;
+
+		$data = Products::get_meta( $post_id, 'json' );
+
+		// trim sku 
+		$sku = substr($data->productSku, 0, -3); 
+
+		return $sku; 
+	}
+
+	public static function get_sku_posts ( $sku = "", $post_id = false ) {
+		global $post;
+
+		if ( ! $post_id )
+			$post_id = $post->ID;
+
+		$data = Products::get_meta( $post_id, 'json' );
+
+		$args = array(
+		    'post_type' => 'product'
+		);
+
+		$posts = get_posts($args); 
+
+		$arr = array(); 
+
+		foreach ($posts as $p) {
+			if ($sku == Products::get_sku( $p->ID )) {
+				$arr[] = $p; 
+			}
+		}
+
+		return $arr; 
+	}
+
+
+	// public static function get_related_posts () {
+	// 	global $post;
+
+	// 	if ( ! $post_id )
+	// 		$post_id = $post->ID;
+
+	// 	$data = Products::get_meta( $post_id, 'json' );
+
+	// 	$args = array(
+	// 	    'post_type' => 'product'
+	// 	);
+
+	// 	$posts = get_posts($args); 
+
+	// 	$arr = array(); 
+
+	// 	foreach ($posts as $p) {
+	// 		if ($sku == Products::get_sku( $p->ID )) {
+	// 			$arr[] = $p; 
+	// 		}
+	// 	}
+
+	// 	return $arr; 
+
+	// }
+
+
 	public static function has_discount( $post_id = false ) {
 		global $post;
 
@@ -188,8 +270,21 @@ class Products {
 
 		$data = Products::get_meta( $post_id, 'json' );
 
-		return $data->markets->{Store::$market}->pricesByPricelist->{Store::$pricelist}->priceReduction > 0;
+		return $data->markets->{Store::$market}->pricesByPricelist->{Store::$pricelist}->priceReductionAsNumber > 0;
 	}
+
+
+	public static function get_discount( $post_id = false ) {
+		global $post;
+
+		if ( ! $post_id )
+			$post_id = $post->ID;
+
+		$data = Products::get_meta( $post_id, 'json' );
+
+		return $data->markets->{Store::$market}->pricesByPricelist->{Store::$pricelist}->priceReductionAsNumber;
+	}
+
 
 	public static function get_price( $post_id = false, $args = '' ) {
 		global $post;
@@ -197,7 +292,7 @@ class Products {
 		$defaults = array(
 			'before_discount' => false
 		);
-		$args = wp_parse_args( $args, $default );
+		$args = wp_parse_args( $args, $defaults );
 
 		extract( $args, EXTR_SKIP );
 
