@@ -17,15 +17,15 @@
 			<?php OWC\Silk\Products::price('before_discount=1'); ?>
 
 			<form action="" method="post" data-product-form="<?php OWC\Silk\Products::uri(); ?>" rel="shop-cart-form">
-				<?php if ( OWC\Silk\Products::has_variants() ) : ?>
+				<?php if ( OWC\Silk\Products::has_sizes() ) : ?>
 					<select name="product_id" rel="shop-cart-variant">
 						<option value="-1"><?php _e( 'Select size', 'owc' ); ?></option>
-						<?php foreach ( OWC\Silk\Products::get_variants() as $variant ) : ?>
+						<?php foreach ( OWC\Silk\Products::get_sizes() as $variant ) : ?>
 							<option value="<?php echo esc_attr( $variant->item ); ?>"><?php echo esc_html( $variant->name ); ?></option>
 						<?php endforeach; ?>
 					</select>
 				<?php else : ?>
-					<input name="product_id" type="hidden" value="<?php echo esc_attr( OWC\Silk\Products::get_variants()[0]->item ); ?>" rel="shop-cart-variant">
+					<input name="product_id" type="hidden" value="<?php echo esc_attr( OWC\Silk\Products::get_sizes()[0]->item ); ?>" rel="shop-cart-variant">
 				<?php endif; ?>
 				<button type="submit"><?php _e( 'Add to cart', 'owc' ); ?></button>
 			</form>
