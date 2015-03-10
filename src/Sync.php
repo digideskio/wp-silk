@@ -5,11 +5,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class Sync {
 	public function __construct() {
-		#add_action( 'wp', array( $this, 'wp' ) );
-	}
-
-	public function wp() {
-		$this->run();
+		if ( ! wp_next_scheduled( 'owc_silk_sync' ) ) {
+			wp_schedule_event( time(), 'hourly', 'owc_silk_sync' );
+		}
+		add_action( 'owc_silk_sync', array( $this, 'run' ) );
 	}
 
 	public static function run() {
@@ -18,6 +17,18 @@ class Sync {
 		// Update countries
 		$countries = (array)Api::get( 'countries' );
 		update_option( OWC_SHOP_PREFIX . '_countries', $countries );
+
+		// Update markets
+		$markets = (array)Api::get( 'markets' );
+		update_option( OWC_SHOP_PREFIX . '_markets', $markets );
+
+		// Update pricelists
+		$pricelists = (array)Api::get( 'pricelists' );
+		update_option( OWC_SHOP_PREFIX . '_pricelists', $pricelists );
+
+		// Update payment methods
+		$payment_methods = (array)Api::get( 'payment-methods' );
+		update_option( OWC_SHOP_PREFIX . '_payment_methods', $payment_methods );
 
 		// Update categories
 		foreach ( (array)Api::get('categories') as $category_id => $category ) {
@@ -55,6 +66,8 @@ class Sync {
 				wp_trash_post( $post_id );
 			}
 		}
+
+		return true;
 	}
 
 	public static function insert_category( $category, $parent_id = false ) {

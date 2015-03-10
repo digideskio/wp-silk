@@ -46,9 +46,9 @@ $store = new Store( array(
 	'market'	=> Admin::$settings['default_market'],
 	'pricelist'	=> Admin::$settings['default_pricelist'],
 ) );
-$options = new Options( 'owc_silk', 'Silk', array(
+$options = new Options( 'owc_silk', 'Silk Configuration', array(
 	'api' => array(
-		'title'  => 'Silk Integration',
+		'title'  => 'Silk Configuration',
 		'fields' => array(
 			'url' => array(
 				'title' => 'API URL',
@@ -60,25 +60,34 @@ $options = new Options( 'owc_silk', 'Silk', array(
 				'type'  => 'text',
 				'value' => ''
 			),
-			'default_payment' => array(
-				'title' => 'Default Payment Method',
-				'type'  => 'text',
-				'value' => 'dummy'
-			),
 			'default_shipping' => array(
 				'title' => 'Default Shipping Method',
 				'type'  => 'text',
 				'value' => 'dummy'
 			),
+			'default_payment' => array(
+				'title' => 'Default Payment Method',
+				'type'  => 'select',
+				'value' => 'dummy',
+				'options'		=> get_option( OWC_SHOP_PREFIX . '_payment_methods' ),
+				'option_key'	=> 'paymentMethod',
+				'option_value'	=> 'name'
+			),
 			'default_market' => array(
 				'title' => 'Default Market',
-				'type'  => 'text',
-				'value' => 2
+				'type'  => 'select',
+				'value' => 2,
+				'options'		=> get_option( OWC_SHOP_PREFIX . '_markets' ),
+				'option_key'	=> 'market',
+				'option_value'	=> 'name'
 			),
 			'default_pricelist' => array(
 				'title' => 'Default Pricelist',
-				'type'  => 'text',
-				'value' => 20
+				'type'  => 'select',
+				'value' => 20,
+				'options' => get_option( OWC_SHOP_PREFIX . '_pricelists' ),
+				'option_key'	=> 'pricelist',
+				'option_value'	=> 'name'
 			),
 			'attribute_taxonomy' => array(
 				'title' => 'Attribute > Taxonomy mapping',
