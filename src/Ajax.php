@@ -23,8 +23,9 @@ class Ajax {
 
 	public function add_to_cart() {
 		$product_id = esc_attr( $_POST['product_id'] );
+		$quantity = (int)$_POST['quantity'];
 
-		Cart::add( $product_id );
+		Cart::add( $product_id, $quantity );
 
 		if ( isset( Cart::$selection->errors ) )
 			wp_send_json_error( Cart::$selection );

@@ -67,13 +67,16 @@ class Cart {
 			Cart::set_session( 'payment_data', Cart::$payment_data );
 		}
 
+		// Get order receipt from session
+		Cart::$order = Cart::get_session( 'order' );
+
 		add_action( 'wp', array( $this, 'handle_submit' ) );
 		add_action( 'wp', array( $this, 'handle_payment_redirect' ) );
 	}
 
 	// Items
-	public static function add( $product_id ) {
-		Cart::$selection = Api::post( 'selections/' . Cart::$selection_id . '/items/' . $product_id );
+	public static function add( $product_id, $quantity = 1 ) {
+		Cart::$selection = Api::post( 'selections/' . Cart::$selection_id . '/items/' . $product_id . '/quantity/' . $quantity );
 	}
 
 	public static function remove( $product_id ) {
@@ -141,7 +144,7 @@ class Cart {
 			session_start();
 
 		unset( $_SESSION['selection_id'] );
-		unset( $_SESSION['payment_data'] );
+		// unset( $_SESSION['payment_data'] );
 	}
 
 	// Template functions
@@ -288,8 +291,10 @@ class Cart {
 		if ( ! is_page( Admin::$settings['receipt_page'] ) )
 			return;
 
-		$response = Cart::handle_payment_result();
-		Cart::$order = $response;
-
+		if ( isset( $_REQUEST[ 'trans' ] ) ) {
+			$response = Cart::handle_payment_result();
+			Cart::$order = $response;
+			Cart::set_session( 'order', Cart::$order );
+		}
 	}
 }

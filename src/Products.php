@@ -216,7 +216,8 @@ class Products {
 		global $post;
 		
 		$defaults = array(
-			'before_discount' => false
+			'before_discount' => false,
+			'price_as_number' => false,
 		);
 		$args = wp_parse_args( $args, $defaults );
 
@@ -233,7 +234,10 @@ class Products {
 		if ( ! isset( $data->markets->{Store::$market}->pricesByPricelist->{Store::$pricelist} ) )
 			return __( 'ERROR: Pricelist not found', 'owc' );
 
-		$property = ( !$before_discount ) ? 'price' : 'priceBeforeDiscount'; 
+		if ( $price_as_number )
+			$property = ( !$before_discount ) ? 'priceAsNumber' : 'priceBeforeDiscountAsNumber'; 
+		else
+			$property = ( !$before_discount ) ? 'price' : 'priceBeforeDiscount';
 
 		$price = $data->markets->{Store::$market}->pricesByPricelist->{Store::$pricelist}->$property;
 		
@@ -285,4 +289,47 @@ class Products {
 
 		return array_values( (array)$data->items );
 	}
+
+	public static function has_stock( $product_id, $post_id = false ) {
+		global $post;
+
+		if ( ! $post_id )
+			$post_id = $post->ID;
+
+		$data = Products::get_meta( $post_id, 'json' );
+		
+		$sizes = $data->items;
+		$size = $sizes->{$product_id};
+
+		if ( ! isset( $size->stockByMarket->{Store::$market} ) )
+			return false;
+
+		$stock = $size->stockByMarket->{Store::$market};
+
+		return $stock > 1;
+	}
+
+
+	public static function get_amount_of_stock ( $product_id, $post_id = false ) {
+		global $post;
+
+		if ( ! $post_id )
+			$post_id = $post->ID;
+
+		$data = Products::get_meta( $post_id, 'json' );
+
+		if ( Products::has_stock( $product_id ) ) {
+			$sizes = $data->items;
+			$size = $sizes->{$product_id};
+
+			if ( ! isset( $size->stockByMarket->{Store::$market} ) )
+				return false;
+
+			return $size->stockByMarket->{Store::$market};
+
+		}
+		
+		return 0; 	
+	}
+
 }
