@@ -317,10 +317,11 @@ class Products {
 			$post_id = $post->ID;
 
 		$data = Products::get_meta( $post_id, 'json' );
+		//print_r($data);
 
-		if ( Products::has_stock( $product_id ) ) {
+		if ( Products::has_stock( $product_id, $post_id ) ) {
 			$sizes = $data->items;
-			$size = $sizes->{$product_id};
+			$size  = $sizes->{$product_id};
 
 			if ( ! isset( $size->stockByMarket->{Store::$market} ) )
 				return false;
