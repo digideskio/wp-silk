@@ -19,7 +19,7 @@ class Ajax {
 	public function __construct() {
 		foreach ( Ajax::$actions as $action ) {
 			add_action( 'wp_ajax_' . $action, array( $this, $action ) );
-			add_action( 'wp_ajax_' . $action, array( $this, $action ) );
+			add_action( 'wp_ajax_nopriv_' . $action, array( $this, $action ) );
 		}
 	}
 
