@@ -29,6 +29,7 @@ class Products {
 		$post_id = wp_insert_post( $post_data );
 
 		Products::update_meta( $post_id, 'product_id', $product_id );
+		Products::update_meta( $post_id, 'product_sku', $silk_data->sku );
 		Products::update_meta( $post_id, 'json', $silk_data );
 
 		// Update categories
@@ -58,14 +59,7 @@ class Products {
 			}
 		}
 
-		// UPDATE COLORS 
-		//$colors = array(); 
-
-		// foreach( $silk_data->silkVariantName as $colorname ) {
-		// 	$colors[] = $colorname;
-		// }		
-
-		// wp_set_object_terms( $post_id, $colors, 'product_color' );
+		do_action( 'owc_silk_update_product', $post, $silk_data );
 	}
 
 	public function setup_post_type() {
@@ -205,72 +199,6 @@ class Products {
 		return (!empty($urls)) ? $urls : ""; 
 	}
 
-	public static function get_sku ( $post_id = false ) {
-		global $post;
-
-		if ( ! $post_id )
-			$post_id = $post->ID;
-
-		$data = Products::get_meta( $post_id, 'json' );
-
-		// trim sku 
-		$sku = substr($data->productSku, 0, -3); 
-
-		return $sku; 
-	}
-
-	public static function get_sku_posts ( $sku = "", $post_id = false ) {
-		global $post;
-
-		if ( ! $post_id )
-			$post_id = $post->ID;
-
-		$data = Products::get_meta( $post_id, 'json' );
-
-		$args = array(
-		    'post_type' => 'product'
-		);
-
-		$posts = get_posts($args); 
-
-		$arr = array(); 
-
-		foreach ($posts as $p) {
-			if ($sku == Products::get_sku( $p->ID )) {
-				$arr[] = $p; 
-			}
-		}
-
-		return $arr; 
-	}
-
-
-	// public static function get_related_posts () {
-	// 	global $post;
-
-	// 	if ( ! $post_id )
-	// 		$post_id = $post->ID;
-
-	// 	$data = Products::get_meta( $post_id, 'json' );
-
-	// 	$args = array(
-	// 	    'post_type' => 'product'
-	// 	);
-
-	// 	$posts = get_posts($args); 
-
-	// 	$arr = array(); 
-
-	// 	foreach ($posts as $p) {
-	// 		if ($sku == Products::get_sku( $p->ID )) {
-	// 			$arr[] = $p; 
-	// 		}
-	// 	}
-
-	// 	return $arr; 
-
-	// }
-
 
 	public static function has_discount( $post_id = false ) {
 		global $post;
@@ -284,23 +212,12 @@ class Products {
 	}
 
 
-	public static function get_discount( $post_id = false ) {
-		global $post;
-
-		if ( ! $post_id )
-			$post_id = $post->ID;
-
-		$data = Products::get_meta( $post_id, 'json' );
-
-		return $data->markets->{Store::$market}->pricesByPricelist->{Store::$pricelist}->priceReductionAsNumber;
-	}
-
-
 	public static function get_price( $post_id = false, $args = '' ) {
 		global $post;
 		
 		$defaults = array(
-			'before_discount' => false
+			'before_discount' => false,
+			'price_as_number' => false,
 		);
 		$args = wp_parse_args( $args, $defaults );
 
@@ -317,7 +234,10 @@ class Products {
 		if ( ! isset( $data->markets->{Store::$market}->pricesByPricelist->{Store::$pricelist} ) )
 			return __( 'ERROR: Pricelist not found', 'owc' );
 
-		$property = ( !$before_discount ) ? 'price' : 'priceBeforeDiscount'; 
+		if ( $price_as_number )
+			$property = ( !$before_discount ) ? 'priceAsNumber' : 'priceBeforeDiscountAsNumber'; 
+		else
+			$property = ( !$before_discount ) ? 'price' : 'priceBeforeDiscount';
 
 		$price = $data->markets->{Store::$market}->pricesByPricelist->{Store::$pricelist}->$property;
 		
@@ -369,4 +289,48 @@ class Products {
 
 		return array_values( (array)$data->items );
 	}
+
+	public static function has_stock( $product_id, $post_id = false ) {
+		global $post;
+
+		if ( ! $post_id )
+			$post_id = $post->ID;
+
+		$data = Products::get_meta( $post_id, 'json' );
+		
+		$sizes = $data->items;
+		$size = $sizes->{$product_id};
+
+		if ( ! isset( $size->stockByMarket->{Store::$market} ) )
+			return false;
+
+		$stock = $size->stockByMarket->{Store::$market};
+
+		return $stock > 1;
+	}
+
+
+	public static function get_amount_of_stock ( $product_id, $post_id = false ) {
+		global $post;
+
+		if ( ! $post_id )
+			$post_id = $post->ID;
+
+		$data = Products::get_meta( $post_id, 'json' );
+		//print_r($data);
+
+		if ( Products::has_stock( $product_id, $post_id ) ) {
+			$sizes = $data->items;
+			$size  = $sizes->{$product_id};
+
+			if ( ! isset( $size->stockByMarket->{Store::$market} ) )
+				return false;
+
+			return $size->stockByMarket->{Store::$market};
+
+		}
+		
+		return 0; 	
+	}
+
 }

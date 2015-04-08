@@ -25,6 +25,7 @@ var OWC_Shop;
 
 				productForm : '[rel=product-form]',
 				productSize : '[rel=product-size]',
+				productQty  : '[rel=product-qty]',
 
 				items       : '[rel=items]',
 				item        : '[rel=item]',
@@ -76,8 +77,16 @@ var OWC_Shop;
 
 			var $form = $(this),
 				id    = $form.find( options.elements.productSize ).val();
+				qty   = $form.find( options.elements.productQty );
 
-			self.addToCart( id, $form.find('button') );
+			if ( qty.length )
+				qty = qty.val()
+			else
+				qty = 1;
+
+			console.log(qty);
+
+			self.addToCart( id, $form.find('button'), qty );
 		} );
 
 		// Checkout: Billing information
@@ -176,18 +185,22 @@ var OWC_Shop;
 		|-----------------------------------------------------------
 		*/
 
-		self.addToCart = function( product_id, el ) {
+		self.addToCart = function( product_id, el, qty ) {
 			if ( product_id < 1 )
 				return;
 			
 			self.elements.$productForm.addClass( options.classes.loading ).removeClass( options.classes.done );
+
+			if ( typeof qty == 'undefined' )
+				qty = 1;
 
 			$.ajax( {
 				type : 'post',
 				url  : ajaxurl,
 				data : {
 					action		: 'add_to_cart',
-					product_id	: product_id
+					product_id	: product_id,
+					quantity    : qty
 				}
 			} ).done( function( response ) {
 				if ( response.success ) {
@@ -213,6 +226,7 @@ var OWC_Shop;
 				}
 			} ).done( function( response ) {
 				if ( response.success ) {
+					console.log("success" + response.data); 
 					self.updateCartLength( response.data.totals.totalQuantity );
 					self.updateTotalPrice( response.data.totals.grandTotalPrice );
 
@@ -241,6 +255,7 @@ var OWC_Shop;
 		}
 
 		self.updateSelection = function( data, parseData ) {
+
 			var button = self.elements.$submitForm.find('input[type=submit]');
 
 			button.attr('disabled', true).addClass( options.classes.loading ).removeClass( options.classes.done );
@@ -254,6 +269,7 @@ var OWC_Shop;
 					parse_data : parseData
 				}
 			} ).done( function( response ) {
+				$(document).trigger("validate");
 				button.attr('disabled', false).removeClass( options.classes.loading ).addClass( options.classes.done );
 			} );
 		}
