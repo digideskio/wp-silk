@@ -25,17 +25,15 @@ class Store {
 
 		Store::$countries = get_option( OWC_SHOP_PREFIX . '_countries' );
 
-		if ( ! Store::$countries ) {
+		if ( Store::$countries ) {
 			$countries = array();
-			foreach ( (array)Api::get( 'countries' ) as $country ) {
+			foreach ( Store::$countries as $country ) {
 				if ( ! $country->shipTo )
 					continue;
 
 				$countries[ $country->country ] = $country;
 			}
 			Store::$countries = $countries;
-
-			update_option( OWC_SHOP_PREFIX . '_countries', Store::$countries );
 		}
 	}
 }

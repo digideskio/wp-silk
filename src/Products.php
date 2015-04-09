@@ -69,7 +69,7 @@ class Products {
 				'singular_name' => _x( 'Product', 'admin', 'owc' )
 			),
 			'public'   => true,
-			'supports' => array( 'title' ),
+			'supports' => array( 'title', 'page-attributes' ),
 			'rewrite' => array(
 				'with_front' => false
 			)

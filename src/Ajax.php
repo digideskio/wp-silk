@@ -17,7 +17,7 @@ class Ajax {
 	public function __construct() {
 		foreach ( Ajax::$actions as $action ) {
 			add_action( 'wp_ajax_' . $action, array( $this, $action ) );
-			add_action( 'wp_ajax_' . $action, array( $this, $action ) );
+			add_action( 'wp_ajax_nopriv_' . $action, array( $this, $action ) );
 		}
 	}
 
@@ -38,6 +38,9 @@ class Ajax {
 		$quantity = (int)$_POST['quantity'];
 
 		Cart::update( $product_id, $quantity );
+
+		if ( ! Cart::$selection )
+			wp_send_json_error( 'API Error' );
 
 		if ( isset( Cart::$selection->errors ) )
 			wp_send_json_error( Cart::$selection );

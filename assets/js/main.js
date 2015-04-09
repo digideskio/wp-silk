@@ -84,7 +84,7 @@ var OWC_Shop;
 			else
 				qty = 1;
 
-			console.log(qty);
+			console.log("quantity" + qty);
 
 			self.addToCart( id, $form.find('button'), qty );
 		} );
@@ -105,6 +105,8 @@ var OWC_Shop;
 		// Checkout: Shipping information
 		self.elements.$shippingForm.on( 'change', 'input', function(e) {
 			e.preventDefault();
+
+			console.log("shipping change");
 
 			if ( self.elements.$sameShipping.is(':checked') )
 				self.elements.$shippingForm.find('input').val('');
@@ -226,7 +228,6 @@ var OWC_Shop;
 				}
 			} ).done( function( response ) {
 				if ( response.success ) {
-					console.log("success" + response.data); 
 					self.updateCartLength( response.data.totals.totalQuantity );
 					self.updateTotalPrice( response.data.totals.grandTotalPrice );
 
