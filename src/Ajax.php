@@ -7,9 +7,11 @@ class Ajax {
 
 	public static $actions = array(
 		'add_to_cart',
-		'update_quantity',
+		
 		'update_selection',
+		'update_quantity',
 		'update_country',
+
 		'add_voucher',
 		'remove_voucher'
 	);
