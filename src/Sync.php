@@ -30,8 +30,11 @@ class Sync {
 		$payment_methods = (array)Api::get( 'payment-methods' );
 		update_option( OWC_SHOP_PREFIX . '_payment_methods', $payment_methods );
 
+		$categories = (array)Api::get( 'categories' );
+		update_option( OWC_SHOP_PREFIX . '_categories', $categories );
+
 		// Update categories
-		foreach ( (array)Api::get('categories') as $category_id => $category ) {
+		foreach ( $categories as $category_id => $category ) {
 			Sync::insert_category( $category );
 		}
 
