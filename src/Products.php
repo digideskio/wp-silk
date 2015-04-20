@@ -45,17 +45,24 @@ class Products {
 
 		// Update additional taxonomies
 		$taxonomy_maps = explode( ',', Admin::$settings['attribute_taxonomy'] );
-		foreach ( $taxonomy_maps as $taxonomy_map ) {
-			$map = explode( '=', $taxonomy_map );
-			$attribute = $map[0];
-			$taxonomy = $map[1];
 
-			if ( isset( $silk_data->{$attribute} ) ) {
-				$term = $silk_data->{$attribute};
+		if ( ! empty( $taxonomy_maps ) ) {
+			foreach ( $taxonomy_maps as $taxonomy_map ) {
+				$map = explode( '=', $taxonomy_map );
 
-				wp_set_object_terms( $post_id, $term, $taxonomy );
-			} else {
-				wp_delete_object_term_relationships( $post_id, $taxonomy );
+				if ( ! isset( $map[1] ) )
+					continue;
+
+				$attribute = $map[0];
+				$taxonomy = $map[1];
+
+				if ( isset( $silk_data->{$attribute} ) ) {
+					$term = $silk_data->{$attribute};
+
+					wp_set_object_terms( $post_id, $term, $taxonomy );
+				} else {
+					wp_delete_object_term_relationships( $post_id, $taxonomy );
+				}
 			}
 		}
 
