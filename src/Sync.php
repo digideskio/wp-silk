@@ -91,6 +91,8 @@ class Sync {
 			) );
 		}
 
+		do_action( 'owc_silk_update_category', $term_id, $category );
+
 		if ( ! empty( $category->categories ) ) {
 			foreach ( $category->categories  as $child_category ) {
 				Sync::insert_category( $child_category, $term_id );
