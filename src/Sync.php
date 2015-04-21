@@ -30,8 +30,11 @@ class Sync {
 		$payment_methods = (array)Api::get( 'payment-methods' );
 		update_option( OWC_SHOP_PREFIX . '_payment_methods', $payment_methods );
 
+		$categories = (array)Api::get( 'categories' );
+		update_option( OWC_SHOP_PREFIX . '_categories', $categories );
+
 		// Update categories
-		foreach ( (array)Api::get('categories') as $category_id => $category ) {
+		foreach ( $categories as $category_id => $category ) {
 			Sync::insert_category( $category );
 		}
 
@@ -90,6 +93,14 @@ class Sync {
 				'parent' 		=> $parent_id
 			) );
 		}
+		$term = get_term( $term_id, 'product_category' );
+
+		global $wpdb;
+
+		$products_ids = implode( ',', $category->products );
+		$post_ids = $wpdb->get_col( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_value IN ($products_ids) ORDER BY FIELD(meta_value, $products_ids)" );
+
+		update_option( OWC_SHOP_PREFIX .'_sorting_' . $term->slug, $post_ids );
 
 		do_action( 'owc_silk_update_category', $term_id, $category );
 

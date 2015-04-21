@@ -35,5 +35,21 @@ class Store {
 			}
 			Store::$countries = $countries;
 		}
+
+		add_action( 'pre_get_posts', array( $this, 'pre_get_posts' ) );
+	}
+
+	function pre_get_posts( $query ) {
+		if ( ! $query->is_tax( 'product_category' ) )
+			return;
+
+		$category = $query->get( 'product_category' );
+		$products = get_option( OWC_SHOP_PREFIX .'_sorting_' . $category );
+
+		if ( empty( $products ) )
+			return;
+
+		$query->set( 'post__in', $products );
+		$query->set( 'orderby', 'post__in' );
 	}
 }
