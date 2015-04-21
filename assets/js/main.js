@@ -206,6 +206,7 @@ var OWC_Shop;
 				}
 			} ).done( function( response ) {
 				if ( response.success ) {
+					$(document).trigger('added_to_cart');
 					self.updateCartLength( response.data.totals.totalQuantity );
 					self.updateTotalPrice( response.data.totals.grandTotalPrice );
 				}
