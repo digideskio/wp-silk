@@ -28,7 +28,8 @@ class Cart {
 			$selection = Api::get( 'selections/' . $selection_id );
 		} else {
 			$selection = Api::post( 'selections', array(
-				'country'	=> Store::$country
+				'country'	=> Store::$country,
+				'pricelist'	=> Store::$pricelist
 			) );
 
 			if ( $selection ) {
@@ -98,6 +99,9 @@ class Cart {
 
 	// Country
 	public static function change_country( $country, $group = 'address' ) {
+		if ( Cart::$payment_data[ $group ]['country'] == $country )
+			return;
+
 		Cart::$payment_data[ $group ]['country'] = $country;
 		Cart::set_payment_details( Cart::$payment_data );
 
@@ -290,6 +294,8 @@ class Cart {
 
 		if ( ! is_page( Admin::$settings['receipt_page'] ) )
 			return;
+
+		do_action( 'owc_silk_before_handle_payment_redirect' );
 
 		//if ( isset( $_REQUEST[ 'trans' ] ) ) {
 			$response = Cart::handle_payment_result();
