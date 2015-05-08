@@ -167,22 +167,14 @@ class Products {
 		if ( ! $post_id )
 			$post_id = $post->ID;
 
-		$data = Products::get_meta( $post_id, 'json' );
-
-		if (!empty($data->media)) {
-			return true; 
-		} else {
-			return false; 
-		}
-
+		return ! empty( Products::get_images( '', $post_id ) );
 	}
 
 	public static function get_images( $args = '', $post_id = false ) {
 		global $post;
 		
 		$default = array(
-			'size' => '', 
-			'single' => false  
+			'size' => 'thumb'
 		);
 		$args = wp_parse_args( $args, $default );
 
@@ -191,22 +183,29 @@ class Products {
 		if ( ! $post_id )
 			$post_id = $post->ID;
 
-		$data = Products::get_meta( $post_id, 'json' );
 		$urls = array();
-		$size = (!empty($size)) ? $size : "full";  
+		$media = Products::get_data( 'media', $post_id );
 
-		if (!$single) :
-			foreach ($data->media as $key => $value) :
-				array_push($urls, $value->sources->$size->url);
-			endforeach; 
-		else : 
-			 array_push($urls, $data->media[0]->sources->$size->url); 	
-			 $urls = implode(",", $urls); 	
-		endif; 	
+		foreach( $media as $image ) {
+			$urls[] = $image->sources->{$size}->url;
+		}
 
-		return (!empty($urls)) ? $urls : ""; 
+		return $urls;
 	}
 
+	public static function get_image( $args = '', $post_id = false ) {
+		$default = array(
+			'size' => 'thumb'
+		);
+		$args = wp_parse_args( $args, $default );
+
+		$media = Products::get_images( $args, $post_id );
+
+		if ( empty( $media ) )
+			return '';
+
+		return $media[0];
+	}
 
 	public static function has_discount( $post_id = false ) {
 		global $post;
