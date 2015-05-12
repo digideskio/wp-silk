@@ -57,6 +57,9 @@ class Sync {
 		}
 
 		foreach ( (array)Api::get('products') as $product_id => $silk_data ) {
+			if ( ! is_object( $silk_data ) )
+				continue;
+			
 			Products::update_product( $product_id, $silk_data );
 
 			if ( isset( $current_products[ $silk_data->uri ] ) )

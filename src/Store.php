@@ -25,10 +25,10 @@ class Store {
 
 		Store::$countries = get_option( OWC_SHOP_PREFIX . '_countries' );
 
-		if ( Store::$countries ) {
+		if ( is_array( Store::$countries ) ) {
 			$countries = array();
 			foreach ( Store::$countries as $country ) {
-				if ( ! $country->shipTo )
+				if ( ! isset( $country->shipTo ) || ! $country->shipTo )
 					continue;
 
 				$countries[ $country->country ] = $country;

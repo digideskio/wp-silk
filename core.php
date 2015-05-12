@@ -69,7 +69,7 @@ $options = new Options( 'owc_silk', 'Silk Configuration', array(
 				'title' => 'Default Payment Method',
 				'type'  => 'select',
 				'value' => 'dummy',
-				'options'		=> get_option( OWC_SHOP_PREFIX . '_payment_methods' ),
+				'options'		=> (array)get_option( OWC_SHOP_PREFIX . '_payment_methods', array() ),
 				'option_key'	=> 'paymentMethod',
 				'option_value'	=> 'name'
 			),
@@ -77,7 +77,7 @@ $options = new Options( 'owc_silk', 'Silk Configuration', array(
 				'title' => 'Default Market',
 				'type'  => 'select',
 				'value' => 2,
-				'options'		=> get_option( OWC_SHOP_PREFIX . '_markets' ),
+				'options'		=> (array)get_option( OWC_SHOP_PREFIX . '_markets', array() ),
 				'option_key'	=> 'market',
 				'option_value'	=> 'name'
 			),
@@ -85,7 +85,7 @@ $options = new Options( 'owc_silk', 'Silk Configuration', array(
 				'title' => 'Default Pricelist',
 				'type'  => 'select',
 				'value' => 20,
-				'options' => get_option( OWC_SHOP_PREFIX . '_pricelists' ),
+				'options' => (array)get_option( OWC_SHOP_PREFIX . '_pricelists', array() ),
 				'option_key'	=> 'pricelist',
 				'option_value'	=> 'name'
 			),
