@@ -21,18 +21,16 @@ class Admin {
 	*/
 
 	public function __construct() {
-		// actions
 		add_action( 'init', array( $this, 'init' ) );
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ), 100 );
 		add_action( 'admin_menu', array( $this, 'admin_menu' ), 100 );
 		add_action( 'manage_posts_custom_column', array( $this, 'custom_columns' ), 10, 2 );
-
 		add_action( 'admin_init', array( $this, 'handle_admin_screen' ), 100 );
 
-		// filters
 		add_filter( 'manage_product_posts_columns', array( $this, 'change_columns' ) );
 
 		Admin::$settings = get_option( OWC_SHOP_PREFIX );
+		add_action( 'init', array( $this, 'translate_options' ) );
 	}
 
 	/*
@@ -44,6 +42,17 @@ class Admin {
 	// init
 	public function init() {
 
+	}
+
+	public function translate_options() {
+		if ( function_exists('icl_object_id') ) {
+			$pages = array( 'checkout', 'receipt', 'push' );
+			
+			foreach ( $pages as $page ) {
+				if ( isset( Admin::$settings[ $page . '_page'] ) )
+					Admin::$settings[ $page . '_page'] = icl_object_id( Admin::$settings[ $page . '_page'], 'page', true, ICL_LANGUAGE_CODE );
+			}
+		}
 	}
 
 	public function admin_bar_menu( $wp_admin_bar ) {
