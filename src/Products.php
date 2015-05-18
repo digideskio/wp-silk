@@ -146,12 +146,10 @@ class Products {
 
 		$data = Products::get_meta( $post_id, 'json' );
 
-		if(isset($data->{$key})) {
-			return $data->{$key};
-		} else {
-			return $data; 
-		}
-			
+		if( ! isset( $data->{$key} ) )
+			return false;
+
+		return $data->{$key};
 	}
 	
 	public static function get_uri( $post_id = false ) {
