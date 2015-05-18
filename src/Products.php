@@ -60,6 +60,8 @@ class Products {
 					$term = $silk_data->{$attribute};
 
 					wp_set_object_terms( $post_id, $term, $taxonomy );
+
+					do_action( 'owc_silk_set_' . $taxonomy, $term, $taxonomy );
 				} else {
 					wp_delete_object_term_relationships( $post_id, $taxonomy );
 				}
