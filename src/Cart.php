@@ -24,6 +24,9 @@ class Cart {
 			$selection_id = Cart::get_session( 'selection_id' );
 		}
 
+		if ( Cart::get_session( 'pricelist' ) )
+			Store::$pricelist = Cart::get_session( 'pricelist' );
+
 		if ( $selection_id ) {
 			$selection = Api::get( 'selections/' . $selection_id );
 		} else {
@@ -106,6 +109,17 @@ class Cart {
 		Cart::set_payment_details( Cart::$payment_data );
 
 		Cart::$selection = Api::put( 'selections/' . Cart::$selection_id . '/countries/' . $country );
+	
+		$pricelist = get_option( OWC_SHOP_PREFIX . '_pricelists' );
+
+		foreach ( $pricelist as $value ) {
+			if ( isset( $value->countries ) && in_array( $country, $value->countries ) ) {
+				Store::$pricelist = $value->pricelist;
+			}
+		}
+
+		Cart::set_session( 'country', $country );
+		Cart::set_session( 'pricelist', Store::$pricelist );
 	}
 
 	// Payment
