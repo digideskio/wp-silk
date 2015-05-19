@@ -85,7 +85,9 @@ class Ajax {
 		$response = array(
 			'totals' 	=> Cart::$selection->totals,
 			'summary'	=> Template::get_html( 'checkout/summary' ),
-			'items'		=> Template::get_html( 'checkout/items' )
+			'items'		=> Template::get_html( 'checkout/items' ),
+			'shippingMethods'	=> Template::get_html( 'checkout/shipping-methods' ),
+			'paymentMethods'	=> Template::get_html( 'checkout/payment-methods' )
 		);
 
 		wp_send_json_success( $response );

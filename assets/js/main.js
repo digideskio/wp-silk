@@ -45,7 +45,9 @@ var OWC_Shop;
 				voucherAdd      : '[rel=voucher-add]',
 				voucherRemove   : '[rel=voucher-remove]',
 
+				paymentMethods  : '[rel=payment-methods]',
 				paymentMethod   : '[rel=payment-method]',
+				shippingMethods : '[rel=shipping-methods]',
 				shippingMethod  : '[rel=shipping-method]',
 
 				sameShipping : '[rel=same-shipping]',
@@ -84,8 +86,6 @@ var OWC_Shop;
 			else
 				qty = 1;
 
-			console.log("quantity" + qty);
-
 			self.addToCart( id, $form.find('button'), qty );
 		} );
 
@@ -105,8 +105,6 @@ var OWC_Shop;
 		// Checkout: Shipping information
 		self.elements.$shippingForm.on( 'change', 'input', function(e) {
 			e.preventDefault();
-
-			console.log("shipping change");
 
 			if ( self.elements.$sameShipping.is(':checked') )
 				self.elements.$shippingForm.find('input').val('');
@@ -289,6 +287,10 @@ var OWC_Shop;
 					country : country
 				}
 			} ).done( function( response ) {
+				self.elements.$items.html( $(response.data.items).html() );
+				self.elements.$summary.html( $(response.data.summary).html() );
+				self.elements.$paymentMethods.html( $(response.data.paymentMethods).html() );
+				self.elements.$shippingMethods.html( $(response.data.shippingMethods).html() );
 				button.attr('disabled', false).removeClass( options.classes.loading ).addClass( options.classes.done );
 			} );
 		}
