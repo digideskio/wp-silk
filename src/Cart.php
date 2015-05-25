@@ -17,6 +17,7 @@ class Cart {
 	public static $doing_redirect = false;
 	public static $instructions;
 	public static $order;
+	public static $errors = false;
 
 	public function __construct( $selection_id = false ) {
 		// Get or create a selection
@@ -213,8 +214,12 @@ class Cart {
 			'options'		=> false,
 			'attributes'	=> false,
 			'required'		=> true,
-			'prefix'		=> 'owc_checkout_', 
-			'class'         => '', 
+			'prefix'		=> 'owc_checkout_',
+			'class'         => '',
+			'error_class'	=> 'error',
+			'error_before'	=> '<small class="error-txt">',
+			'error_after'	=> '</small>',
+			'error_text'	=> __( 'Required field', 'owc' )
 		);
 		$args = wp_parse_args( $args, $defaults );
 
@@ -222,6 +227,18 @@ class Cart {
 
 		if ( $required )
 			$attributes['required'] = 'required';
+
+		$errors = Cart::get_errors();
+		$has_error = false;
+		if ( isset( $errors[$group] ) && isset( $errors[$group][$name] ) )
+			$has_error = true;
+
+		$error_html = '';
+		if ( $has_error ) {
+			$class .= " $error_class";
+			$error_html = $error_before . $error_text . $error_after;
+		}
+
 
 		$attributes_html = '';
 		if ( $attributes ) {
@@ -247,11 +264,10 @@ class Cart {
 					$selected = ( $field_value == $key );
 					$options_html .= '<option value="' . $key . '"' . ( $selected ? ' selected' : '' ) . '>' . esc_html( $val->name ) . '</option>';
 				}
-				printf( '<div class="%s"><label for="%s">%s</label><select id="%s" type="%s" name="%s" %s>%s</select></div>', $class, $id, $label, $id, $type, $field_name, $attributes_html, $options_html );
+				printf( '<div class="%s"><label for="%s">%s</label><select id="%s" type="%s" name="%s" %s>%s</select>%s</div>', $class, $id, $label, $id, $type, $field_name, $attributes_html, $options_html, $error_html );
 				break;
 			default:
-				#printf( '<div><label for="%s">%s</label><input id="%s" type="%s" name="%s" value="%s" %s></div>', $id, $label, $id, $type, $field_name, $field_value, $attributes_html );
-				printf( '<div class="%s"><label for="%s">%s</label><input id="%s" type="%s" name="%s" value="%s" %s></div>', $class, $id, $label, $id, $type, $field_name, Cart::field_value( array( 'group' => $group, 'name' => $name ) ), $attributes_html );
+				printf( '<div class="%s"><label for="%s">%s</label><input id="%s" type="%s" name="%s" value="%s" %s>%s</div>', $class, $id, $label, $id, $type, $field_name, Cart::field_value( array( 'group' => $group, 'name' => $name ) ), $attributes_html, $error_html );
 				break;
 		}
 	}
@@ -272,6 +288,37 @@ class Cart {
 			return '';
 
 		return Cart::$payment_data[ $group ][ $name ];
+	}
+
+	public static function get_errors() {
+		if ( ! Cart::$errors )
+			Cart::group_errors();
+
+		return Cart::$errors;
+	}
+
+	private static function group_errors() {
+		$errors = $_GET['errors'];
+		$errors_map = array();
+		
+		foreach( $errors as $error ) {
+			$map = explode( ':', $error );
+
+			if ( isset( $map[1] ) ) {
+				$group = $map[0];
+				$field = $map[1];
+			} else {
+				$group = 'no_group';
+				$field = $error;
+			}
+
+			if ( ! isset( $errors_map[ $group ] ) )
+				$errors_map[ $group ] = array();
+
+			$errors_map[ $group ][ $field ] = $field;
+		}
+
+		Cart::$errors = $errors_map;
 	}
 
 	// Actions
