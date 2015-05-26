@@ -298,6 +298,9 @@ class Cart {
 	}
 
 	private static function group_errors() {
+		if ( ! isset( $_GET['errors'] ) )
+			return array();
+		
 		$errors = $_GET['errors'];
 		$errors_map = array();
 		
