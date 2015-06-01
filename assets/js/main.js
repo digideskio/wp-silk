@@ -106,7 +106,7 @@ var OWC_Shop;
 		self.elements.$shippingForm.on( 'change', 'input', function(e) {
 			e.preventDefault();
 
-			if ( self.elements.$sameShipping.is(':checked') )
+			if ( ! self.elements.$sameShipping.is(':checked') )
 				self.elements.$shippingForm.find('input').val('');
 			
 			self.updateSelection( self.elements.$shippingForm.serialize(), true );
