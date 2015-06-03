@@ -31,7 +31,7 @@ class Store {
 				if ( ! isset( $country->shipTo ) || ! $country->shipTo )
 					continue;
 
-				$countries[ $country->country ] = $country;
+				$countries[ strtolower( $country->country ) ] = $country;
 			}
 			Store::$countries = $countries;
 		}
