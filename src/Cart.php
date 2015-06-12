@@ -113,8 +113,10 @@ class Cart {
 	
 		$pricelist = get_option( OWC_SHOP_PREFIX . '_pricelists' );
 
+		$country_upper = strtoupper( $country );
+
 		foreach ( $pricelist as $value ) {
-			if ( isset( $value->countries ) && in_array( $country, $value->countries ) ) {
+			if ( isset( $value->countries ) && in_array( $country_upper, $value->countries ) ) {
 				Store::$pricelist = $value->pricelist;
 			}
 		}
