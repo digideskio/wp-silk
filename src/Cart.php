@@ -211,6 +211,7 @@ class Cart {
 		$defaults = array(
 			'label'			=> '',
 			'name'			=> '',
+			'default_value'	=> '',
 			'group'			=> 'address',
 			'type'			=> 'text',
 			'options'		=> false,
@@ -253,6 +254,10 @@ class Cart {
 		}
 
 		$field_value = Cart::field_value( array( 'group' => $group, 'name' => $name ) );
+		
+		if ( empty( $field_value ) && ! empty( $default_value ) )
+			$field_value = $default_value;
+
 		$field_name = $group . '[' . $name . ']';
 		$id = $prefix . $group . '_' . $name;
 
