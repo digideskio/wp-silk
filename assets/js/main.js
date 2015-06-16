@@ -113,10 +113,8 @@ var OWC_Shop;
 		} );
 
 		// Checkout: Payment method
-		self.elements.$paymentMethod.on( 'change', function(){
-			self.updateSelection({
-				paymentMethod : $(this).val()
-			});
+		self.elements.$paymentMethods.on( 'change', options.elements.paymentMethod, function(){
+			self.updatePaymentMethod( $(this).val() );
 		} );
 
 		// Checkout: Country change
@@ -271,6 +269,32 @@ var OWC_Shop;
 			} ).done( function( response ) {
 				$(document).trigger("validate");
 				button.attr('disabled', false).removeClass( options.classes.loading ).addClass( options.classes.done );
+			} );
+		}
+
+		self.updatePaymentMethod = function( paymentMethod ) {
+
+			var button = self.elements.$submitForm.find('input[type=submit]');
+
+			button.attr('disabled', true).addClass( options.classes.loading ).removeClass( options.classes.done );
+			
+			self.elements.$productForm.addClass( options.classes.loading ).removeClass( options.classes.done );
+
+			$.ajax( {
+				type : 'post',
+				url  : ajaxurl,
+				data : {
+					action : 'update_payment_method',
+					payment_method   : paymentMethod
+				}
+			} ).done( function( response ) {
+				self.elements.$items.html( $(response.data.items).html() );
+				self.elements.$summary.html( $(response.data.summary).html() );
+				self.elements.$paymentMethods.html( $(response.data.paymentMethods).html() );
+				self.elements.$shippingMethods.html( $(response.data.shippingMethods).html() );
+
+				button.attr('disabled', false).removeClass( options.classes.loading ).addClass( options.classes.done );
+				self.elements.$productForm.removeClass( options.classes.loading ).addClass( options.classes.done );
 			} );
 		}
 

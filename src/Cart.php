@@ -126,6 +126,12 @@ class Cart {
 	}
 
 	// Payment
+	public static function change_payment_method( $payment_method ) {
+		Cart::$payment_data['paymentMethod'] = $payment_method;
+		Cart::set_payment_details( Cart::$payment_data );
+
+		Cart::$selection = Api::put( 'selections/' . Cart::$selection_id . '/payment-methods/' . $payment_method );
+	}
 	public static function set_payment_details( $data = array() ) {
 		Cart::$payment_data = array_merge( Cart::$payment_data, $data );
 
