@@ -14,7 +14,9 @@ class Ajax {
 		'update_payment_method',
 
 		'add_voucher',
-		'remove_voucher'
+		'remove_voucher',
+
+		'newsletter'
 	);
 
 	public function __construct() {
@@ -139,5 +141,13 @@ class Ajax {
 			'summary'	=> Template::get_html( 'checkout/summary' ),
 			'voucher'	=> Template::get_html( 'checkout/voucher' )
 		) );
+	}
+
+	public function newsletter() {
+		$email = sanitize_email( $_POST['email'] );
+
+		$response = Api::post( 'customers/' . $email . '/newsletter-subscription' );
+
+		wp_send_json_success( $response );
 	}
 }
