@@ -65,7 +65,7 @@ class Cart {
 					'zipCode'		=> '',
 					'city'			=> '',
 					'state'			=> '',
-					'country'		=> ''
+					'country'		=> Store::$country
 				)
 			);
 
