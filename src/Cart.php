@@ -106,6 +106,8 @@ class Cart {
 		if ( Cart::$payment_data[ $group ]['country'] == $country )
 			return;
 
+		$country = strtolower( $country );
+
 		Cart::$payment_data[ $group ]['country'] = $country;
 		Cart::set_payment_details( Cart::$payment_data );
 
