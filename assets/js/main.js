@@ -90,8 +90,13 @@ var OWC_Shop;
 		} );
 
 		// Checkout: Billing information
+		var billingInformationTimeout;
 		self.elements.$billingForm.on( 'change', 'input', function() {
-			self.updateSelection( self.elements.$billingForm.serialize(), true );
+			clearTimeout( billingInformationTimeout );
+
+			billingInformationTimeout = setTimeout(function(){
+				self.updateSelection( self.elements.$billingForm.serialize(), true );
+			}, 50 );
 		} );
 
 		// Checkout: Same shipping toggle
@@ -103,13 +108,16 @@ var OWC_Shop;
 		} );
 
 		// Checkout: Shipping information
-		self.elements.$shippingForm.on( 'change', 'input', function(e) {
-			e.preventDefault();
-
+		var shippingInformationTimeout;
+		self.elements.$shippingForm.on( 'change', 'input', function() {
 			if ( ! self.elements.$sameShipping.is(':checked') )
 				self.elements.$shippingForm.find('input').val('');
 			
-			self.updateSelection( self.elements.$shippingForm.serialize(), true );
+			clearTimeout( shippingInformationTimeout );
+
+			shippingInformationTimeout = setTimeout(function(){
+				self.updateSelection( self.elements.$shippingForm.serialize(), true );
+			}, 50 );
 		} );
 
 		// Checkout: Payment method
