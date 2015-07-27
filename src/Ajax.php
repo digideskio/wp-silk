@@ -16,7 +16,9 @@ class Ajax {
 		'add_voucher',
 		'remove_voucher',
 
-		'newsletter'
+		'newsletter',
+
+		'fetch_personal_information'
 	);
 
 	public function __construct() {
@@ -147,6 +149,18 @@ class Ajax {
 		$email = sanitize_email( $_POST['email'] );
 
 		$response = Api::post( 'customers/' . $email . '/newsletter-subscription' );
+
+		wp_send_json_success( $response );
+	}
+
+	public function fetch_personal_information() {
+		$personal_number = $_POST['personal_number'];
+
+		$response = Api::post( 'payment-methods/lookup/address-search', array(
+			'paymentMethod'		=> 'lookup',
+			'identityNumber'	=> $personal_number,
+			'country'			=> 'SE'
+		) );
 
 		wp_send_json_success( $response );
 	}

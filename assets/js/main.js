@@ -55,7 +55,9 @@ var OWC_Shop;
 				country      : '[rel=billing-country]',
 				shippingForm : '[rel=shipping-information]',
 
-				submitForm	 : '[rel=checkout-submit]'
+				submitForm	 : '[rel=checkout-submit]',
+
+				personalNumberForm	 : '[rel=personal-number]'
 			},
 			classes : {
 				loading : 'is-loading',
@@ -112,7 +114,7 @@ var OWC_Shop;
 		self.elements.$shippingForm.on( 'change', 'input', function() {
 			if ( ! self.elements.$sameShipping.is(':checked') )
 				self.elements.$shippingForm.find('input').val('');
-			
+
 			clearTimeout( shippingInformationTimeout );
 
 			shippingInformationTimeout = setTimeout(function(){
@@ -122,7 +124,15 @@ var OWC_Shop;
 
 		// Checkout: Payment method
 		self.elements.$paymentMethods.on( 'change', options.elements.paymentMethod, function(){
-			self.updatePaymentMethod( $(this).val() );
+			var paymentMethod = $(this).val();
+
+			self.updatePaymentMethod( paymentMethod );
+
+			if ( paymentMethod.indexOf('klarna') > -1 ) {
+				$('body').addClass('is-klarna');
+			} else {
+				$('body').removeClass('is-klarna');
+			}
 		} );
 
 		// Checkout: Country change
@@ -183,6 +193,15 @@ var OWC_Shop;
 			var voucher = $(this).data('voucher');
 
 			self.removeVoucher( voucher );
+		} );
+
+		// Checkout: Personal number
+		self.elements.$personalNumberForm.on( 'submit', function(e) {
+			e.preventDefault();
+
+			var personalNumber = $(this).find('input').val();
+
+			self.fetchPersonalInformation( personalNumber );
 		} );
 
 		/*
@@ -359,6 +378,31 @@ var OWC_Shop;
 				if ( response.success ) {
 					self.elements.$summary.html( $(response.data.summary).html() );
 					self.elements.$voucherSection.html( $(response.data.voucher).html() );
+				}
+			} ).always( function() {
+				//
+			} );
+		}
+
+		self.fetchPersonalInformation = function( personalNumber ) {
+			self.elements.$billingForm.removeClass('got-address');
+
+			$.ajax( {
+				type : 'post',
+				url  : ajaxurl,
+				data : {
+					action	: 'fetch_personal_information',
+					personal_number	: personalNumber
+				}
+			} ).done( function( response ) {
+				if ( ! response.data.errors ) {
+					$.each(response.data, function(key, val){
+						$('[name="address[' + key + ']"]').val(val); //.attr('disabled', true);
+					} );
+					self.elements.$billingForm.addClass('got-address');
+					self.updateSelection( self.elements.$billingForm.serialize(), true );
+				} else {
+					self.elements.$personalNumberForm.find('input').after('<small class="error-txt">' + self.elements.$personalNumberForm.data('error-text') + '</small>');
 				}
 			} ).always( function() {
 				//
