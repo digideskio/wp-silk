@@ -11,8 +11,9 @@ class Cart {
 	|-----------------------------------------------------------
 	*/
 
-	public static $selection_id;
-	public static $selection;
+	public static $selection_id = false;
+	public static $selection = false;
+
 	public static $payment_data;
 	public static $doing_redirect = false;
 	public static $instructions;
@@ -23,28 +24,13 @@ class Cart {
 		// Get or create a selection
 		if ( ! $selection_id ) {
 			$selection_id = Cart::get_session( 'selection_id' );
+
+			Cart::$selection_id = $selection_id;
 		}
 
 		if ( Cart::get_session( 'pricelist' ) )
 			Store::$pricelist = Cart::get_session( 'pricelist' );
-
-		if ( $selection_id ) {
-			$selection = Api::get( 'selections/' . $selection_id );
-		} else {
-			$selection = Api::post( 'selections', array(
-				'country'	=> Store::$country,
-				'pricelist'	=> Store::$pricelist
-			) );
-
-			if ( $selection ) {
-				$selection_id = $selection->selection;
-				
-				Cart::set_session( 'selection_id', $selection_id );
-			}
-		}
-
-		Cart::$selection_id = $selection_id;
-		Cart::$selection = $selection;
+			
 
 		// Get payment data from session
 		Cart::$payment_data = Cart::get_session( 'payment_data' );
@@ -79,25 +65,63 @@ class Cart {
 		add_action( 'wp', array( $this, 'handle_payment_redirect' ) );
 	}
 
+	public static function has_selection() {
+		return isset( Cart::$selection_id ) && Cart::$selection_id !== false;
+	}
+
+	public static function fetch_selection() {
+		Cart::$selection = Api::get( 'selections/' . Cart::$selection_id );
+	}
+
+	public static function create_selection() {
+		$selection = Api::post( 'selections', array(
+			'country'	=> Store::$country,
+			'pricelist'	=> Store::$pricelist
+		) );
+
+		if ( $selection ) {
+			$selection_id = $selection->selection;
+			
+			Cart::set_session( 'selection_id', $selection_id );
+			Cart::$selection = $selection;
+			Cart::$selection_id = $selection_id;
+		}
+	}
+
 	// Items
 	public static function add( $product_id, $quantity = 1 ) {
+		if ( ! Cart::has_selection() )
+			Cart::create_selection();
+
 		Cart::$selection = Api::post( 'selections/' . Cart::$selection_id . '/items/' . $product_id . '/quantity/' . $quantity );
 	}
 
 	public static function remove( $product_id, $quantity = 0 ) {
+		if ( Cart::has_selection() && ! Cart::$selection )
+			Cart::fetch_selection();
+		
 		Cart::$selection = Api::delete( 'selections/' . Cart::$selection_id . '/items/' . $product_id . ( $quantity > 0 ? '/quantity/' . $quantity : '' ) );
 	}
 
 	public static function update( $product_id, $quantity ) {
+		if ( Cart::has_selection() && ! Cart::$selection )
+			Cart::fetch_selection();
+		
 		Cart::$selection = Api::put( 'selections/' . Cart::$selection_id . '/items/' . $product_id . '/quantity/' . $quantity );
 	}
 
 	// Vouchers
 	public static function add_voucher( $voucher ) {
+		if ( Cart::has_selection() && ! Cart::$selection )
+			Cart::fetch_selection();
+		
 		Cart::$selection =  Api::post( 'selections/' . Cart::$selection_id . '/vouchers/' . $voucher );
 	}
 
 	public static function remove_voucher( $voucher ) {
+		if ( Cart::has_selection() && ! Cart::$selection )
+			Cart::fetch_selection();
+
 		Cart::$selection =  Api::delete( 'selections/' . Cart::$selection_id . '/vouchers/' . $voucher );
 	}
 
@@ -129,6 +153,9 @@ class Cart {
 
 	// Payment
 	public static function change_payment_method( $payment_method ) {
+		if ( Cart::has_selection() && ! Cart::$selection )
+			Cart::fetch_selection();
+
 		Cart::$payment_data['paymentMethod'] = $payment_method;
 		Cart::set_payment_details( Cart::$payment_data );
 
@@ -141,10 +168,16 @@ class Cart {
 	}
 
 	public static function get_payment_instructions() {
+		if ( Cart::has_selection() && ! Cart::$selection )
+			Cart::fetch_selection();
+
 		return Api::post( 'selections/' . Cart::$selection_id . '/payment', Cart::$payment_data );
 	}
 
 	public static function handle_payment_result() {
+		if ( Cart::has_selection() && ! Cart::$selection )
+			Cart::fetch_selection();
+
 		$response = Api::post( 'selections/' . Cart::$selection_id . '/payment-result', array( 'paymentMethodFields' => $_REQUEST ) );
 
 		if ( ! isset( $response->errors ) )
@@ -186,6 +219,9 @@ class Cart {
 	}
 
 	public static function get_quantity() {
+		if ( Cart::has_selection() && ! Cart::$selection )
+			Cart::fetch_selection();
+
 		if ( ! isset ( Cart::$selection->totals ) )
 			return 0;
 
@@ -197,6 +233,9 @@ class Cart {
 	}
 
 	public static function get_totals( $key ) {
+		if ( Cart::has_selection() && ! Cart::$selection )
+			Cart::fetch_selection();
+
 		if ( ! isset ( Cart::$selection->totals ) )
 			return 0;
 
