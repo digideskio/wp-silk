@@ -30,7 +30,6 @@ class Cart {
 
 		if ( Cart::get_session( 'pricelist' ) )
 			Store::$pricelist = Cart::get_session( 'pricelist' );
-			
 
 		// Get payment data from session
 		Cart::$payment_data = Cart::get_session( 'payment_data' );
