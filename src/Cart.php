@@ -74,7 +74,7 @@ class Cart {
 
 	public static function create_selection() {
 		$selection = Api::post( 'selections', array(
-			'country'	=> Store::$country,
+			'country'	=> Cart::get_session( 'country' );,
 			'pricelist'	=> Store::$pricelist
 		) );
 
