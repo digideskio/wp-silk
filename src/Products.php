@@ -313,7 +313,7 @@ class Products {
 
 		$stock = $size->stockByMarket->{Store::$market};
 
-		return $stock > 1;
+		return $stock > 0;
 	}
 
 
