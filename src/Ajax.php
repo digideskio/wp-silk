@@ -12,6 +12,7 @@ class Ajax {
 		'update_quantity',
 		'update_country',
 		'update_payment_method',
+		'update_address_fields',
 
 		'add_voucher',
 		'remove_voucher',
@@ -112,6 +113,16 @@ class Ajax {
 			'items'		=> Template::get_html( 'checkout/items' ),
 			'shippingMethods'	=> Template::get_html( 'checkout/shipping-methods' ),
 			'paymentMethods'	=> Template::get_html( 'checkout/payment-methods' )
+		);
+
+		wp_send_json_success( $response );
+	}
+
+	public function update_address_fields() {
+		$type = esc_attr( $_POST['type'] );
+
+		$response = array(
+			'html'	=> Template::get_html( 'checkout/' . $type . '-information' )
 		);
 
 		wp_send_json_success( $response );

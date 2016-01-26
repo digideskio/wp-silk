@@ -50,7 +50,7 @@ class Cart {
 					'zipCode'		=> '',
 					'city'			=> '',
 					'state'			=> '',
-					'country'		=> strtolower( Store::$country )
+					'country'		=> ''
 				)
 			);
 
@@ -126,7 +126,7 @@ class Cart {
 
 	// Country
 	public static function change_country( $country, $group = 'address' ) {
-		if ( Cart::$payment_data[ $group ]['country'] == $country )
+		if ( isset( Cart::$payment_data[ $group ]['country'] ) && Cart::$payment_data[ $group ]['country'] == $country )
 			return;
 
 		$country = strtolower( $country );
