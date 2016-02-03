@@ -94,7 +94,7 @@ var OWC_Shop;
 
 		// Checkout: Billing information
 		var billingInformationTimeout;
-		self.elements.$billingForm.on( 'change', 'input', function() {
+		self.elements.$billingForm.on( 'change', 'input,select:not([rel=billing-country])', function() {
 			clearTimeout( billingInformationTimeout );
 
 			billingInformationTimeout = setTimeout(function(){
@@ -112,7 +112,7 @@ var OWC_Shop;
 
 		// Checkout: Shipping information
 		var shippingInformationTimeout;
-		self.elements.$shippingForm.on( 'change', 'input', function() {
+		self.elements.$shippingForm.on( 'change', 'input,select:not([rel=shipping-country])', function() {
 			if ( ! self.elements.$sameShipping.is(':checked') )
 				self.elements.$shippingForm.find('input').val('');
 
