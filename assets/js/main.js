@@ -54,6 +54,7 @@ var OWC_Shop;
 				billingForm  : '[rel=billing-information]',
 				country      : '[rel=billing-country]',
 				shippingForm : '[rel=shipping-information]',
+				shippingCountry : '[rel=shipping-country]',
 
 				submitForm	 : '[rel=checkout-submit]',
 
@@ -93,7 +94,7 @@ var OWC_Shop;
 
 		// Checkout: Billing information
 		var billingInformationTimeout;
-		self.elements.$billingForm.on( 'change', 'input', function() {
+		self.elements.$billingForm.on( 'change', 'input,select:not([rel=billing-country])', function() {
 			clearTimeout( billingInformationTimeout );
 
 			billingInformationTimeout = setTimeout(function(){
@@ -111,7 +112,7 @@ var OWC_Shop;
 
 		// Checkout: Shipping information
 		var shippingInformationTimeout;
-		self.elements.$shippingForm.on( 'change', 'input', function() {
+		self.elements.$shippingForm.on( 'change', 'input,select:not([rel=shipping-country])', function() {
 			if ( ! self.elements.$sameShipping.is(':checked') )
 				self.elements.$shippingForm.find('input').val('');
 
@@ -136,8 +137,10 @@ var OWC_Shop;
 		} );
 
 		// Checkout: Country change
-		self.elements.$country.on( 'change', function(){
-			self.updateCountry( $(this).val() );
+		self.elements.$billingForm.on( 'change', '[rel=billing-country]', function(){
+			self.updateCountry( $(this).val(), function(){
+				self.updateAddressFields( 'billing', '[rel=billing-information]' );
+			});
 		} );
 
 		// Checkout: Product delete
@@ -299,6 +302,30 @@ var OWC_Shop;
 			} );
 		}
 
+		self.updateAddressFields = function( type, selector ) {
+
+			var button = self.elements.$submitForm.find('input[type=submit]');
+
+			button.attr('disabled', true).addClass( options.classes.loading ).removeClass( options.classes.done );
+
+			$.ajax( {
+				type : 'post',
+				url  : ajaxurl,
+				data : {
+					action : 'update_address_fields',
+					type   : type
+				}
+			} ).done( function( response ) {
+				var el = $( selector );
+				el.html( $(response.data.html).html() );
+				owc.customSelect();
+				el.find('.select-block label').each(function () {
+					$(this).nextAll().wrapAll('<div class="select"></div>');
+				});
+				//$(document).trigger("triggerchoosen"); 
+			} );
+		}
+
 		self.updatePaymentMethod = function( paymentMethod ) {
 
 			var button = self.elements.$submitForm.find('input[type=submit]');
@@ -325,7 +352,7 @@ var OWC_Shop;
 			} );
 		}
 
-		self.updateCountry = function( country ) {
+		self.updateCountry = function( country, callback ) {
 			var button = self.elements.$submitForm.find('input[type=submit]');
 
 			button.attr('disabled', true).addClass( options.classes.loading ).removeClass( options.classes.done );
@@ -343,6 +370,9 @@ var OWC_Shop;
 				self.elements.$paymentMethods.html( $(response.data.paymentMethods).html() );
 				self.elements.$shippingMethods.html( $(response.data.shippingMethods).html() );
 				button.attr('disabled', false).removeClass( options.classes.loading ).addClass( options.classes.done );
+
+				if ( callback )
+					callback.call(self);
 			} );
 		}
 
