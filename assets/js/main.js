@@ -213,7 +213,7 @@ var OWC_Shop;
 		self.addToCart = function( product_id, el, qty ) {
 			if ( product_id < 1 )
 				return;
-			
+
 			self.elements.$productForm.addClass( options.classes.loading ).removeClass( options.classes.done );
 
 			if ( typeof qty == 'undefined' )
@@ -304,7 +304,7 @@ var OWC_Shop;
 			var button = self.elements.$submitForm.find('input[type=submit]');
 
 			button.attr('disabled', true).addClass( options.classes.loading ).removeClass( options.classes.done );
-			
+
 			self.elements.$productForm.addClass( options.classes.loading ).removeClass( options.classes.done );
 
 			$.ajax( {
@@ -347,6 +347,15 @@ var OWC_Shop;
 		}
 
 		self.addVoucher = function( voucher ) {
+			self.elements.$voucher.removeClass('error');
+			self.elements.$voucherForm.removeClass('not-valid');
+
+			if( ! voucher) {
+				self.elements.$voucher.addClass('error');
+
+				return;
+			}
+
 			self.elements.$voucherAdd.attr('disabled', true).addClass( options.classes.loading ).removeClass( options.classes.done );
 
 			$.ajax( {
@@ -360,6 +369,9 @@ var OWC_Shop;
 				if ( response.success ) {
 					self.elements.$summary.html( $(response.data.summary).html() );
 					self.elements.$voucherSection.html( $(response.data.voucher).html() );
+				} else {
+					self.elements.$voucher.addClass('error');
+					self.elements.$voucherForm.addClass('not-valid');
 				}
 			} ).always( function() {
 				self.elements.$voucherAdd.attr('disabled', false).removeClass( options.classes.loading ).addClass( options.classes.done );
