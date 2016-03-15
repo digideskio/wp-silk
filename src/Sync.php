@@ -33,6 +33,15 @@ class Sync {
 		$categories = (array)Api::get( 'categories' );
 		update_option( OWC_SHOP_PREFIX . '_categories', $categories );
 
+		// Country to market mapping
+		$country_market_map = array();
+		foreach ( $markets as $market ) {
+			foreach ( $market->countries as $country ) {
+				$country_market_map[ $country ] = $market->market;
+			}
+		}
+		update_option( OWC_SHOP_PREFIX . '_country_market_map', $country_market_map );
+
 		// Update categories
 		foreach ( $categories as $category_id => $category ) {
 			Sync::insert_category( $category );

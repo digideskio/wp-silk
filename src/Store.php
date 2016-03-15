@@ -49,7 +49,14 @@ class Store {
 		if ( empty( $products ) )
 			return;
 
+		// Filter products not active in market
+		$products = array_filter( $products, array( $this, 'market_products' ) );
+
 		$query->set( 'post__in', $products );
 		$query->set( 'orderby', 'post__in' );
+	}
+
+	function market_products( $var ) {
+		return true;
 	}
 }
