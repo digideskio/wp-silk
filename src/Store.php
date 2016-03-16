@@ -49,7 +49,17 @@ class Store {
 		if ( empty( $products ) )
 			return;
 
+		// Filter products not active in market
+		$products = array_filter( $products, array( $this, 'market_products' ) );
+
 		$query->set( 'post__in', $products );
 		$query->set( 'orderby', 'post__in' );
+	}
+
+	function market_products( $post_id ) {
+		$market_products = get_option( OWC_SHOP_PREFIX . '_market_products' );
+		$products = $market_products[ Store::$market ];
+
+		return in_array( $post_id, $products );
 	}
 }

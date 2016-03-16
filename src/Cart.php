@@ -31,6 +31,9 @@ class Cart {
 		if ( Cart::get_session( 'pricelist' ) )
 			Store::$pricelist = Cart::get_session( 'pricelist' );
 
+		if ( Cart::get_session( 'market' ) )
+			Store::$market = Cart::get_session( 'market' );
+
 		// Get payment data from session
 		Cart::$payment_data = Cart::get_session( 'payment_data' );
 
@@ -146,7 +149,12 @@ class Cart {
 			}
 		}
 
+		$country_market_map = get_option( OWC_SHOP_PREFIX . '_country_market_map' );
+
+		Store::$market = isset( $country_market_map[ $country_upper ] ) ? $country_market_map[ $country_upper ] : Store::$market;
+
 		Cart::set_session( 'country', $country );
+		Cart::set_session( 'market', Store::$market );
 		Cart::set_session( 'pricelist', Store::$pricelist );
 	}
 

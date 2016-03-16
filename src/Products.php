@@ -69,6 +69,8 @@ class Products {
 		}
 
 		do_action( 'owc_silk_update_product', $post, $silk_data );
+
+		return $post_id;
 	}
 
 	public function setup_post_type() {
@@ -215,6 +217,9 @@ class Products {
 
 		$data = Products::get_meta( $post_id, 'json' );
 
+		if ( ! isset( $data->markets->{Store::$market} ) )
+			return false;
+
 		return $data->markets->{Store::$market}->pricesByPricelist->{Store::$pricelist}->priceReductionAsNumber > 0;
 	}
 
@@ -236,10 +241,10 @@ class Products {
 		$data = Products::get_meta( $post_id, 'json' );
 
 		if ( ! isset( $data->markets->{Store::$market} ) )
-			return __( 'ERROR: Market not found', 'owc' );
+			return ''; //__( 'ERROR: Market not found', 'owc' );
 
 		if ( ! isset( $data->markets->{Store::$market}->pricesByPricelist->{Store::$pricelist} ) )
-			return __( 'ERROR: Pricelist not found', 'owc' );
+			return ''; //__( 'ERROR: Pricelist not found', 'owc' );
 
 		if ( $price_as_number )
 			$property = ( !$before_discount ) ? 'priceAsNumber' : 'priceBeforeDiscountAsNumber'; 
