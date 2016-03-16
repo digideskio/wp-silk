@@ -56,7 +56,10 @@ class Store {
 		$query->set( 'orderby', 'post__in' );
 	}
 
-	function market_products( $var ) {
-		return true;
+	function market_products( $post_id ) {
+		$market_products = get_option( OWC_SHOP_PREFIX . '_market_products' );
+		$products = $market_products[ Store::$market ];
+
+		return in_array( $post_id, $products );
 	}
 }

@@ -65,15 +65,26 @@ class Sync {
 			$current_products[ $row->post_name ] = $row->ID;
 		}
 
+		$market_products = array();
+
 		foreach ( (array)Api::get('products') as $product_id => $silk_data ) {
 			if ( ! is_object( $silk_data ) )
 				continue;
 			
-			Products::update_product( $product_id, $silk_data );
+			$post_id = Products::update_product( $product_id, $silk_data );
+
+			foreach ( $silk_data->markets as $market_id => $value) {
+				if ( ! isset( $market_products[ $market_id ] ) )
+					$market_products[ $market_id ] = array();
+
+				$market_products[ $market_id ][] = $post_id;
+			}
 
 			if ( isset( $current_products[ $silk_data->uri ] ) )
 				unset( $current_products[ $silk_data->uri ] );
 		}
+
+		update_option( OWC_SHOP_PREFIX .'_market_products', $market_products );
 
 		// Trash inactive products
 		if ( ! empty( $current_products ) ) {
@@ -81,6 +92,8 @@ class Sync {
 				wp_trash_post( $post_id );
 			}
 		}
+
+		update_option( OWC_SHOP_PREFIX .'_last_update', current_time( 'mysql' ) );
 
 		return true;
 	}
