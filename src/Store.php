@@ -36,10 +36,13 @@ class Store {
 			Store::$countries = $countries;
 		}
 
-		add_action( 'pre_get_posts', array( $this, 'pre_get_posts' ) );
+		if ( ! is_admin() ) {
+			add_action( 'pre_get_posts', array( $this, 'category_sorting_filtering' ) );
+			add_action( 'pre_get_posts', array( $this, 'search_filtering' ) );
+		}
 	}
 
-	function pre_get_posts( $query ) {
+	function category_sorting_filtering( $query ) {
 		if ( ! $query->is_tax( 'product_category' ) )
 			return;
 
@@ -50,16 +53,28 @@ class Store {
 			return;
 
 		// Filter products not active in market
-		$products = array_filter( $products, array( $this, 'market_products' ) );
+		$products = array_filter( $products, array( $this, 'market_products_filter' ) );
 
 		$query->set( 'post__in', $products );
 		$query->set( 'orderby', 'post__in' );
 	}
 
-	function market_products( $post_id ) {
+	function search_filtering( $query ) {
+		if ( ! $query->is_search() )
+			return;
+
+		// Filter products not active in market
+		$query->set( 'post__in', Store::market_products() );
+	}
+
+	function market_products_filter( $post_id ) {
+		return in_array( $post_id, Store::market_products() );
+	}
+
+	static function market_products() {
 		$market_products = get_option( OWC_SHOP_PREFIX . '_market_products' );
 		$products = $market_products[ Store::$market ];
 
-		return in_array( $post_id, $products );
+		return $products;
 	}
 }
