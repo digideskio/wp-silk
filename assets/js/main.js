@@ -133,6 +133,8 @@ var OWC_Shop;
 				$('body').addClass('is-klarna');
 			} else {
 				$('body').removeClass('is-klarna');
+				self.elements.$billingForm.find('input').attr('readonly', false);
+				self.elements.$shippingForm.find('input').attr('readonly', false);
 			}
 		} );
 
@@ -286,7 +288,7 @@ var OWC_Shop;
 
 			var button = self.elements.$submitForm.find('input[type=submit]');
 
-			button.attr('disabled', true).addClass( options.classes.loading ).removeClass( options.classes.done );
+			//button.attr('disabled', true).addClass( options.classes.loading ).removeClass( options.classes.done );
 
 			$.ajax( {
 				type : 'post',
@@ -298,7 +300,7 @@ var OWC_Shop;
 				}
 			} ).done( function( response ) {
 				$(document).trigger("validate");
-				button.attr('disabled', false).removeClass( options.classes.loading ).addClass( options.classes.done );
+				//button.attr('disabled', false).removeClass( options.classes.loading ).addClass( options.classes.done );
 			} );
 		}
 
@@ -306,7 +308,7 @@ var OWC_Shop;
 
 			var button = self.elements.$submitForm.find('input[type=submit]');
 
-			button.attr('disabled', true).addClass( options.classes.loading ).removeClass( options.classes.done );
+			//button.attr('disabled', true).addClass( options.classes.loading ).removeClass( options.classes.done );
 
 			$.ajax( {
 				type : 'post',
@@ -330,7 +332,7 @@ var OWC_Shop;
 
 			var button = self.elements.$submitForm.find('input[type=submit]');
 
-			button.attr('disabled', true).addClass( options.classes.loading ).removeClass( options.classes.done );
+			//button.attr('disabled', true).addClass( options.classes.loading ).removeClass( options.classes.done );
 
 			self.elements.$productForm.addClass( options.classes.loading ).removeClass( options.classes.done );
 
@@ -347,7 +349,7 @@ var OWC_Shop;
 				self.elements.$paymentMethods.html( $(response.data.paymentMethods).html() );
 				self.elements.$shippingMethods.html( $(response.data.shippingMethods).html() );
 
-				button.attr('disabled', false).removeClass( options.classes.loading ).addClass( options.classes.done );
+				//button.attr('disabled', false).removeClass( options.classes.loading ).addClass( options.classes.done );
 				self.elements.$productForm.removeClass( options.classes.loading ).addClass( options.classes.done );
 			} );
 		}
@@ -355,7 +357,7 @@ var OWC_Shop;
 		self.updateCountry = function( country, callback ) {
 			var button = self.elements.$submitForm.find('input[type=submit]');
 
-			button.attr('disabled', true).addClass( options.classes.loading ).removeClass( options.classes.done );
+			//button.attr('disabled', true).addClass( options.classes.loading ).removeClass( options.classes.done );
 
 			$.ajax( {
 				type : 'post',
@@ -369,7 +371,7 @@ var OWC_Shop;
 				self.elements.$summary.html( $(response.data.summary).html() );
 				self.elements.$paymentMethods.html( $(response.data.paymentMethods).html() );
 				self.elements.$shippingMethods.html( $(response.data.shippingMethods).html() );
-				button.attr('disabled', false).removeClass( options.classes.loading ).addClass( options.classes.done );
+				//button.attr('disabled', false).removeClass( options.classes.loading ).addClass( options.classes.done );
 
 				if ( callback )
 					callback.call(self);
@@ -386,7 +388,7 @@ var OWC_Shop;
 				return;
 			}
 
-			self.elements.$voucherAdd.attr('disabled', true).addClass( options.classes.loading ).removeClass( options.classes.done );
+			//self.elements.$voucherAdd.attr('disabled', true).addClass( options.classes.loading ).removeClass( options.classes.done );
 
 			$.ajax( {
 				type : 'post',
@@ -404,7 +406,7 @@ var OWC_Shop;
 					self.elements.$voucherForm.addClass('not-valid');
 				}
 			} ).always( function() {
-				self.elements.$voucherAdd.attr('disabled', false).removeClass( options.classes.loading ).addClass( options.classes.done );
+				//self.elements.$voucherAdd.attr('disabled', false).removeClass( options.classes.loading ).addClass( options.classes.done );
 			} );
 		}
 
@@ -439,7 +441,7 @@ var OWC_Shop;
 			} ).done( function( response ) {
 				if ( ! response.data.errors ) {
 					$.each(response.data, function(key, val){
-						$('[name="address[' + key + ']"]').val(val); //.attr('disabled', true);
+						$('[name="address[' + key + ']"]').val(val).attr('readonly', true);
 					} );
 					self.elements.$billingForm.addClass('got-address');
 					self.updateSelection( self.elements.$billingForm.serialize(), true );
